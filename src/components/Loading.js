@@ -32,7 +32,7 @@ export default () => (
       <Text style={styles.textStyle}>
         {' '}
         difference; together we make change"
-        {' '}
+{' '}
       </Text>
       <B color={YELLOW}> Barbara Milkuski </B>
     </View>

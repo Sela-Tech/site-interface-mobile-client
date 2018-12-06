@@ -16,8 +16,14 @@ const Spinner = ({ size, color }) => (
   </View>
 );
 
+Spinner.defaultProps = {
+  size: 'large',
+  color: 'lightblue',
+};
+
 Spinner.propTypes = {
   size: PropTypes.string,
+  color: PropTypes.string,
 };
 
 export default Spinner;

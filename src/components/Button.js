@@ -26,15 +26,23 @@ const Button = ({ text, color, textColor, fn, textSize, medium, style }) => (
   </TouchableOpacity>
 );
 
-Button.defaultProps = {};
+Button.defaultProps = {
+  fn: null,
+  color: '',
+  textSize: null,
+  textColor: '',
+  style: {},
+  medium: null,
+};
 
 Button.propTypes = {
   text: PropTypes.string.isRequired,
   fn: PropTypes.func,
   color: PropTypes.string,
   textSize: PropTypes.number,
-  textColor: PropTypes.string,
-  // medium: PropTypes.bool,
+  textColor: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+  style: PropTypes.objectOf(PropTypes.object),
+  medium: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
 };
 
 export default Button;

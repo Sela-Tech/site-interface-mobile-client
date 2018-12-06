@@ -115,8 +115,8 @@ Input.propTypes = {
   showPass: PropTypes.bool,
   medium: PropTypes.bool,
   multiline: PropTypes.bool,
-  // style: PropTypes.object,
-  // textStyle: PropTypes.string,
+  style: PropTypes.objectOf(PropTypes.object),
+  textStyle: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   showPassword: PropTypes.func,
   onTheChange: PropTypes.func,
 };

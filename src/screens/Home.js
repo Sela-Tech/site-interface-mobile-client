@@ -1,11 +1,5 @@
 import React, { Component } from 'react';
-import {
-  View,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import { View, StyleSheet, Image, Dimensions } from 'react-native';
 import Text from '../components/Text';
 import B from '../components/BoldText';
 import Button from '../components/Button';
@@ -41,6 +35,13 @@ const styles = StyleSheet.create({
 });
 
 export default class Home extends Component {
+
+  state = {
+    name: '',
+  };
+
+  onChangeName = name => this.setState({ name });
+
   render() {
     return (
       <View style={styles.container}>
@@ -61,6 +62,7 @@ export default class Home extends Component {
                 text="Your full name"
                 placeHolderColor="#696F74"
                 style={styles.inputStyle}
+                onTheChange={this.onChangeName}
               />
             </View>
             <View style={{ marginTop: '5%' }}>
