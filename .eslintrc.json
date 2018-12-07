@@ -5,9 +5,13 @@
     ],
     "parser": "babel-eslint",
     "plugins": [
-        "eslint-plugin-prettier"
+        "prettier"
     ],
     "rules": {
+        "semi": [
+            1,
+            "always"
+        ],
         "prettier/prettier": [
             "error",
             {

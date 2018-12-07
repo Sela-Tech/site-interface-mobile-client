@@ -25,9 +25,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 15,
   },
-  button: {
-    width: width / 2.2,
-  },
   inputStyle: {
     borderColor: '#696f74',
     height: height / 14,
@@ -35,14 +32,12 @@ const styles = StyleSheet.create({
 });
 
 export default class Home extends Component {
-
   state = {
     name: '',
   };
 
-  onChangeName = name => this.setState({ name });
-
   render() {
+    const { name } = this.state;
     return (
       <View style={styles.container}>
         <View style={styles.begContainer}>
@@ -51,18 +46,16 @@ export default class Home extends Component {
         <View style={styles.otherContainer}>
           <View style={ExtStyle.align}>
             <B size={20}> Welcome. </B>
-            <Text style={{ fontWeight: '400', fontSize: 18 }}>
-              {' '}
-              Enter your name to start
-            </Text>
+            <Text style={{ fontWeight: '400', fontSize: 18 }}> Enter your name to start</Text>
           </View>
           <View style={{ alignItems: 'center', margin: 10 }}>
             <View>
               <Input
+                value={name}
                 text="Your full name"
                 placeHolderColor="#696F74"
                 style={styles.inputStyle}
-                onTheChange={this.onChangeName}
+                onChangeTheText={name => this.setState({ name })}
               />
             </View>
             <View style={{ marginTop: '5%' }}>
@@ -70,8 +63,7 @@ export default class Home extends Component {
                 text="Start"
                 color={YELLOW}
                 textColor={WHITE}
-                style={styles.button}
-                fn={() => this.props.navigation.navigate('CreateHome')}
+                fn={() => this.props.navigation.navigate('Sites')}
               />
             </View>
           </View>

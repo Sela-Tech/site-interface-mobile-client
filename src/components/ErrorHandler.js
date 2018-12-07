@@ -22,7 +22,11 @@ export default class ErrorHandler extends Component {
       return (
         <ImageBackground
           source={require('../../assets/splash.png')}
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
         />
       );
     }

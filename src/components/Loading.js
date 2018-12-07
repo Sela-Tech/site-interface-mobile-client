@@ -29,11 +29,7 @@ export default () => (
     <Spinner occupy={false} />
     <View style={styles.innerContainer}>
       <Text style={styles.textStyle}> "Each of us can make a </Text>
-      <Text style={styles.textStyle}>
-        {' '}
-        difference; together we make change"
-{' '}
-      </Text>
+      <Text style={styles.textStyle}> difference; together we make change" </Text>
       <B color={YELLOW}> Barbara Milkuski </B>
     </View>
   </View>
