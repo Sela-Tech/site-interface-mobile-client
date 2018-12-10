@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Font } from 'expo';
 import { StyleSheet, View } from 'react-native';
+import { Provider } from 'react-redux';
 import SplashScreen from './src/screens/SplashScreen';
 import { RootNavigator } from './src/Navigator';
 import ErrorHandler from './src/components/ErrorHandler';

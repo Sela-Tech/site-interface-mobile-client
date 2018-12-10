@@ -1,11 +1,13 @@
-
 import * as types from '../actions/actionTypes';
 
-const imageReducer = (state = {
-  images: {},
-  loading: true,
-  error: null,
-}, (action - { images, isLoading, error })) => {
+const imageReducer = (
+  state = {
+    images: {},
+    loading: true,
+    error: null,
+  },
+  action,
+) => {
   switch (action.type) {
     case types.GET_IMAGE:
       return { ...state, images: action.images };
@@ -22,3 +24,5 @@ const imageReducer = (state = {
 };
 
 export default imageReducer;
+
+// - { images, isLoading, error }))

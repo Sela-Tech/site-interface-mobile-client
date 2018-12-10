@@ -2,8 +2,6 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import ReduxThunk from 'redux-thunk';
 import rootReducer from '../reducers';
 
-
-
 // const serviceMiddleware = myServiceMiddleware(API);
 
 const middlewares = [
@@ -16,11 +14,7 @@ const middlewares = [
   // logger, // use during development alone
 ];
 
-const store = createStore(
-  rootReducer,
-  {},
-  compose(applyMiddleware(...middlewares)),
-);
+const store = createStore(rootReducer, {}, compose(applyMiddleware(...middlewares)));
 
 // const persistor = persistStore(store);
 

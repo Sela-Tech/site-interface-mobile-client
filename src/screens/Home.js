@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Image, Dimensions } from 'react-native';
+import { connect } from 'react-redux';
+import { addNewName } from '../../actions/name';
 import Text from '../components/Text';
 import B from '../components/BoldText';
 import Button from '../components/Button';
@@ -31,13 +33,33 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class Home extends Component {
+class Home extends Component {
   state = {
     name: '',
+    loading: false,
+  };
+
+  saveName = async () => {
+    this.setState({ loading: true });
+    const { name } = this.state;
+    const { addName } = this.props;
+    try {
+      console.log('name sending', name);
+      const data = JSON.stringify({ name });
+      const resp = await addName(data);
+      console.log('lets see the result', resp);
+      this.props.navigation.navigate('Sites');
+      this.setState({ loading: true });
+    } catch (error) {
+      this.setState({
+        error: error.message,
+        loading: false,
+      });
+    }
   };
 
   render() {
-    const { name } = this.state;
+    const { name, loading } = this.state;
     return (
       <View style={styles.container}>
         <View style={styles.begContainer}>
@@ -63,7 +85,8 @@ export default class Home extends Component {
                 text="Start"
                 color={YELLOW}
                 textColor={WHITE}
-                fn={() => this.props.navigation.navigate('Sites')}
+                fn={() => this.saveName()}
+                loading={loading}
               />
             </View>
           </View>
@@ -72,3 +95,16 @@ export default class Home extends Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  name: state.name,
+});
+
+const mapDispatchToProps = dispatch => ({
+  addName: name => dispatch(addNewName(name)),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Home);

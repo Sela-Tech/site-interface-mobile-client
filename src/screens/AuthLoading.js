@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
+import { getName } from '../../actions/name';
 import Loading from '../components/Loading';
 
 const styles = StyleSheet.create({
@@ -20,8 +21,13 @@ class AuthLoading extends React.Component {
 
   getKey = async () => {
     try {
-      const name = 'linux';
-      this.props.navigation.navigate(name !== null ? 'App' : 'Auth');
+      await this.props.getName();
+      if (this.props && this.props.name && this.props.name.name !== '') {
+        this.props.navigation.navigate('App');
+      }
+      else {
+        this.props.navigation.navigate('Auth');
+      }
     } catch (err) {
       this.props.navigation.navigate('Auth');
     }
@@ -34,6 +40,18 @@ class AuthLoading extends React.Component {
       </View>
     );
   }
-}
+};
 
-export default AuthLoading;
+const mapStateToProps = state => ({
+  name: state.name,
+});
+
+const mapDispatchToProps = dispatch => ({
+  getName: () => dispatch(getName()),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(AuthLoading);
+

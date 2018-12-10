@@ -5,10 +5,10 @@ const nameReducer = (state = {
   name: '',
   loading: true,
   error: null,
-}, (action = { name, error, isLoading })) => {
+}, action) => {
   switch (action.type) {
     case types.GET_NAME:
-      return { ...state, card: action.name };
+      return { ...state, name: action.name };
     case types.ADD_NAME:
       const data = { data: action.name };
       return { ...state, name: data };
@@ -22,3 +22,5 @@ const nameReducer = (state = {
 };
 
 export default nameReducer;
+
+// = { name, error, isLoading })

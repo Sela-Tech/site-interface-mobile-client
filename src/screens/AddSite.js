@@ -104,7 +104,7 @@ export default class AddSite extends Component {
         return alert('location access denied');
       }
       const { longitude, latitude } = status.coords;
-      let data = newBox.filter(v => v.uri !== '');
+      const data = newBox.filter(v => v.uri !== '');
 
       data.map(d => {
         const imageName = d.uri.split('/');
@@ -122,17 +122,15 @@ export default class AddSite extends Component {
         data,
         buttonLoading: false,
       });
-      console.log('dataaaa', data)
+      console.log('dataaaa', data);
       try {
         const resp = await API.upload(data[0]);
         if (resp.data.message === 'Saved Successfully') {
           this.props.navigation.navigate('Home');
-        }
-        else {
+        } else {
           console.log('failed');
         }
-      }
-      catch (err) {
+      } catch (err) {
         console.log('err', err.message);
         this.setState({ err: err.message });
       }
@@ -153,7 +151,6 @@ export default class AddSite extends Component {
         const photo = await this.camera.takePictureAsync({
           skipProcessing: true,
         });
-
 
         this.setState(prevState => ({
           step,
@@ -211,47 +208,47 @@ export default class AddSite extends Component {
             {this.renderBottomBar()}
           </Camera>
         ) : (
-            <Fragment>
-              <View style={{ paddingTop: '5%', flex: 1 }}>
-                <View>
-                  <Text style={{ fontSize: 20 }}>Site Name</Text>
-                </View>
-                <View style={{ marginTop: 10 }}>
-                  <Input
-                    value={siteName}
-                    text="What is the name of the site"
-                    placeHolderColor="#696F74"
-                    style={styles.inputStyle}
-                    onChangeTheText={siteName => this.setState({ siteName })}
+          <Fragment>
+            <View style={{ paddingTop: '5%', flex: 1 }}>
+              <View>
+                <Text style={{ fontSize: 20 }}>Site Name</Text>
+              </View>
+              <View style={{ marginTop: 10 }}>
+                <Input
+                  value={siteName}
+                  text="What is the name of the site"
+                  placeHolderColor="#696F74"
+                  style={styles.inputStyle}
+                  onChangeTheText={siteName => this.setState({ siteName })}
+                />
+              </View>
+              <View style={styles.image}>
+                {newBox.map((v, index) => (
+                  <Box
+                    fn={() => this.openCamera()}
+                    key={index}
+                    empty={(v && v.uri) !== ''}
+                    imageSource={{ uri: v.uri }}
                   />
-                </View>
-                <View style={styles.image}>
-                  {newBox.map((v, index) => (
-                    <Box
-                      fn={() => this.openCamera()}
-                      key={index}
-                      empty={(v && v.uri) !== ''}
-                      imageSource={{ uri: v.uri }}
-                    />
-                  ))}
-                </View>
+                ))}
+              </View>
 
-                <View>
-                  <View style={styles.bottom}>
-                    <View>
-                      <Button
-                        text="SAVE"
-                        color={YELLOW}
-                        style={styles.button}
-                        fn={() => this.save()}
-                        loading={buttonLoading}
-                      />
-                    </View>
+              <View>
+                <View style={styles.bottom}>
+                  <View>
+                    <Button
+                      text="SAVE"
+                      color={YELLOW}
+                      style={styles.button}
+                      fn={() => this.save()}
+                      loading={buttonLoading}
+                    />
                   </View>
                 </View>
               </View>
-            </Fragment>
-          )}
+            </View>
+          </Fragment>
+        )}
       </ScrollView>
     );
   }
