@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { Location, Permissions, Camera, Constants } from 'expo';
+import { connect } from 'react-redux';
+import { uploadSingleImage, addNewImage } from '../../actions/images';
 import { Ionicons } from '@expo/vector-icons'; // eslint-disable-line
 import Text from '../components/Text';
 import Input from '../components/Input';
@@ -26,7 +28,6 @@ const styles = StyleSheet.create({
     flexGrow: 4,
     flexWrap: 'wrap',
     flexDirection: 'row',
-    // margin: 15,
     justifyContent: 'space-between',
   },
   button: {
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class AddSite extends Component {
+class AddSite extends Component {
   state = {
     siteName: '',
     buttonLoading: false,
@@ -80,7 +81,6 @@ export default class AddSite extends Component {
       console.log('status', status);
       this.setState({ permissionsGranted: status === 'granted' });
     } catch (error) {
-      console.log('err', error.message);
       this.setState({ error: error.message });
     }
   }
@@ -108,7 +108,7 @@ export default class AddSite extends Component {
 
       data.map(d => {
         const imageName = d.uri.split('/');
-        d.author = 'david';
+        d.author = 'same';//this.props && this.props.name && this.props.name.name && this.props.name.name.name; // eslint-disable-line
         d.site_name = siteName;
         d.evidence_name = imageName[imageName.length - 1];
         d.longitude = longitude;
@@ -122,20 +122,21 @@ export default class AddSite extends Component {
         data,
         buttonLoading: false,
       });
-      console.log('dataaaa', data);
       try {
-        const resp = await API.upload(data[0]);
+        const { uploadSingleImage } = this.props;
+        const resp = await API.upload(data[0]);//uploadSingleImage(data[0])//API.upload(data[0]);
+        console.log('resp--ds', resp);
         if (resp.data.message === 'Saved Successfully') {
-          this.props.navigation.navigate('Home');
+          this.props.navigation.navigate('Sites');
         } else {
           console.log('failed');
         }
       } catch (err) {
-        console.log('err', err.message);
+        console.log('err', err.message)
         this.setState({ err: err.message });
       }
     } catch (err) {
-      console.log('err', err.message);
+      console.log('err', err.message)
       this.setState({ buttonLoading: false, error: err.message });
     }
   };
@@ -208,48 +209,63 @@ export default class AddSite extends Component {
             {this.renderBottomBar()}
           </Camera>
         ) : (
-          <Fragment>
-            <View style={{ paddingTop: '5%', flex: 1 }}>
-              <View>
-                <Text style={{ fontSize: 20 }}>Site Name</Text>
-              </View>
-              <View style={{ marginTop: 10 }}>
-                <Input
-                  value={siteName}
-                  text="What is the name of the site"
-                  placeHolderColor="#696F74"
-                  style={styles.inputStyle}
-                  onChangeTheText={siteName => this.setState({ siteName })}
-                />
-              </View>
-              <View style={styles.image}>
-                {newBox.map((v, index) => (
-                  <Box
-                    fn={() => this.openCamera()}
-                    key={index}
-                    empty={(v && v.uri) !== ''}
-                    imageSource={{ uri: v.uri }}
+            <Fragment>
+              <View style={{ paddingTop: '5%', flex: 1 }}>
+                <View>
+                  <Text style={{ fontSize: 20 }}>Site Name</Text>
+                </View>
+                <View style={{ marginTop: 10 }}>
+                  <Input
+                    value={siteName}
+                    text="What is the name of the site"
+                    placeHolderColor="#696F74"
+                    style={styles.inputStyle}
+                    onChangeTheText={siteName => this.setState({ siteName })}
                   />
-                ))}
-              </View>
-
-              <View>
-                <View style={styles.bottom}>
-                  <View>
-                    <Button
-                      text="SAVE"
-                      color={YELLOW}
-                      style={styles.button}
-                      fn={() => this.save()}
-                      loading={buttonLoading}
+                </View>
+                <View style={styles.image}>
+                  {newBox.map((v, index) => (
+                    <Box
+                      fn={() => this.openCamera()}
+                      key={index}
+                      empty={(v && v.uri) !== ''}
+                      imageSource={{ uri: v.uri }}
                     />
+                  ))}
+                </View>
+
+                <View>
+                  <View style={styles.bottom}>
+                    <View>
+                      <Button
+                        text="SAVE"
+                        color={YELLOW}
+                        style={styles.button}
+                        fn={() => this.save()}
+                        loading={buttonLoading}
+                      />
+                    </View>
                   </View>
                 </View>
               </View>
-            </View>
-          </Fragment>
-        )}
+            </Fragment>
+          )}
       </ScrollView>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  name: state.name,
+  images: state.images,
+});
+
+const mapDispatchToProps = dispatch => ({
+  uploadSingleImage: data => dispatch(uploadSingleImage(data)),
+  addNewImage: data => dispatch(addNewImage(data))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(AddSite);

@@ -22,6 +22,7 @@ class AuthLoading extends React.Component {
   getKey = async () => {
     try {
       await this.props.getName();
+      console.log('thrhhr', this.props.name);
       if (this.props && this.props.name && this.props.name.name !== '') {
         this.props.navigation.navigate('App');
       }

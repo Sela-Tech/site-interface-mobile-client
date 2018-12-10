@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, Image, Dimensions, KeyboardAvoidingView } from 'react-native';
 import { connect } from 'react-redux';
 import { addNewName } from '../../actions/name';
+import DismissKeyboard from '../components/DismissKeyboard';
 import Text from '../components/Text';
 import B from '../components/BoldText';
 import Button from '../components/Button';
@@ -10,7 +11,7 @@ import { YELLOW, WHITE } from '../utils/constants';
 import ExtStyle from '../utils/styles';
 import { isAndroid } from '../utils/helpers';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -44,10 +45,8 @@ class Home extends Component {
     const { name } = this.state;
     const { addName } = this.props;
     try {
-      console.log('name sending', name);
       const data = JSON.stringify({ name });
       const resp = await addName(data);
-      console.log('lets see the result', resp);
       this.props.navigation.navigate('Sites');
       this.setState({ loading: true });
     } catch (error) {
@@ -61,37 +60,43 @@ class Home extends Component {
   render() {
     const { name, loading } = this.state;
     return (
-      <View style={styles.container}>
-        <View style={styles.begContainer}>
-          <Image source={require('../../assets/icon.png')} />
-        </View>
-        <View style={styles.otherContainer}>
-          <View style={ExtStyle.align}>
-            <B size={20}> Welcome. </B>
-            <Text style={{ fontWeight: '400', fontSize: 18 }}> Enter your name to start</Text>
-          </View>
-          <View style={{ alignItems: 'center', margin: 10 }}>
-            <View>
-              <Input
-                value={name}
-                text="Your full name"
-                placeHolderColor="#696F74"
-                style={styles.inputStyle}
-                onChangeTheText={name => this.setState({ name })}
-              />
+      <DismissKeyboard>
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={{ flex: 1 }}>
+          <View style={styles.container}>
+            <View style={styles.begContainer}>
+              <Image source={require('../../assets/icon.png')} />
             </View>
-            <View style={{ marginTop: '5%' }}>
-              <Button
-                text="Start"
-                color={YELLOW}
-                textColor={WHITE}
-                fn={() => this.saveName()}
-                loading={loading}
-              />
+            <View style={styles.otherContainer}>
+              <View style={ExtStyle.align}>
+                <B size={20}> Welcome. </B>
+                <Text style={{ fontWeight: '400', fontSize: 18 }}> Enter your name to start</Text>
+              </View>
+              <View style={{ alignItems: 'center', margin: 10 }}>
+                <View>
+                  <Input
+                    value={name}
+                    text="Your full name"
+                    placeHolderColor="#696F74"
+                    style={styles.inputStyle}
+                    onChangeTheText={name => this.setState({ name })}
+                  />
+                </View>
+                <View style={{ marginTop: '5%' }}>
+                  <Button
+                    text="Start"
+                    color={YELLOW}
+                    textColor={WHITE}
+                    fn={() => this.saveName()}
+                    loading={loading}
+                  />
+                </View>
+              </View>
             </View>
           </View>
-        </View>
-      </View>
+        </KeyboardAvoidingView>
+      </DismissKeyboard>
     );
   }
 }

@@ -21,7 +21,7 @@ export const nameLoadingError = error => ({
   error,
 });
 
-export const addNewName = data => dispatch => {
+export const addNewName = data => dispatch =>
   AsyncStorage.setItem('nameo', data)
     .then(() => {
       dispatch(nameIsLoading(false));
@@ -32,17 +32,14 @@ export const addNewName = data => dispatch => {
       dispatch(nameLoadingError(err.message || 'ERROR'));
     });
 
-
-
-  export const getName = () => dispatch =>
-    AsyncStorage.getItem('nameo')
-      .then(resp => {
-        dispatch(nameIsLoading(false));
-        console.log('resp names', resp);
-        const name = JSON.parse(resp);
-        dispatch(getOwnerName(name));
-      })
-      .catch(err => {
-        dispatch(nameIsLoading(false));
-        dispatch(nameLoadingError(err.message || 'ERROR'));
-      });
+export const getName = () => dispatch =>
+  AsyncStorage.getItem('nameo')
+    .then(resp => {
+      dispatch(nameIsLoading(false));
+      const name = JSON.parse(resp);
+      dispatch(getOwnerName(name));
+    })
+    .catch(err => {
+      dispatch(nameIsLoading(false));
+      dispatch(nameLoadingError(err.message || 'ERROR'));
+    });

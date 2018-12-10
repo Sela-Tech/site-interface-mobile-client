@@ -2,7 +2,8 @@ import * as types from '../actions/actionTypes';
 
 const imageReducer = (
   state = {
-    images: {},
+    images: [],
+    new_image: {},
     loading: true,
     error: null,
   },
@@ -12,8 +13,8 @@ const imageReducer = (
     case types.GET_IMAGE:
       return { ...state, images: action.images };
     case types.ADD_IMAGE:
-      const data = { data: action.images };
-      return { ...state, images: data };
+      const data = { data: action.image };
+      return { ...state, new_image: data };
     case types.IMAGE_IS_LOADING:
       return { ...state, loading: action.isLoading };
     case types.HANDLE_IMAGE_ERROR:
@@ -25,4 +26,3 @@ const imageReducer = (
 
 export default imageReducer;
 
-// - { images, isLoading, error }))

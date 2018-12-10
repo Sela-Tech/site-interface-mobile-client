@@ -35,7 +35,7 @@ axios.interceptors.response.use(
 
 const options = {
   keyPrefix: 'uploads/',
-  bucket: 'iracks-dump-test',
+  bucket: 'iracks-dump',
   region: 'us-east-1',
   accessKey: 'AKIAIRTNAQCMVZ5BFDGA',
   secretKey: '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',
@@ -43,44 +43,61 @@ const options = {
 };
 
 const uploadToAWS = file => {
-  console.log('file', file);
-  console.log('options', options);
-  RNS3.put(file, options)
+  return RNS3.put(file, options)
     .then(response => {
-      console.log(response);
-      // if (response.status !== 201)
-      //   // throw new Error("Failed to upload image to S3");
-      //   console.log(response.body);
-      /**
-       * {
-       *   postResponse: {
-       *     bucket: "your-bucket",
-       *     etag : "9f620878e06d28774406017480a59fd4",
-       *     key: "uploads/image.png",
-       *     location: "https://your-bucket.s3.amazonaws.com/uploads%2Fimage.png"
-       *   }
-       * }
-       */
+      if (response.status !== 201) {
+        console.log('failed');
+        return false
+      }
+      else {
+        return response.body;
+      }
     })
-    .catch(err => err.message);
+    .catch(err => {
+      return false;
+    });
 };
 
 export const upload = async data => {
+  console.log('data gotten', data);
+
+  // try {
+  //   const resp = await axios.post('', data);
+  //   return resp;
+  // } catch (error) {
+  //   return error;
+  // }
   const file = {
     uri: data.uri,
     name: data.evidence_name,
     type: 'image/png',
   };
-  // upload to aws
-  const awsReply = await uploadToAWS(file);
-  console.log('awsReply', awsReply);
+  this.postData = data;
+  uploadToAWS(file, data)
+    .then(async (awsReply) => {
+      if (awsReply === false) {
+        return false;
+      }
+      const data = this.postData;
+      // console.log('lets see data', data);
+      console.log('awsReply', awsReply);
 
-  data.evidence_name = awsReply.location;
+      data.evidence_name = awsReply.location;
+      console.log('lets see data', data)
 
-  try {
-    const resp = await axios.post('/', data);
-    return resp;
-  } catch (error) {
-    return error;
-  }
+      return axios.post('', data)
+        .then(resp => {
+          return resp;
+        })
+        .catch(err => {
+          return err;
+        })
+      // try {
+      //   const resp = await axios.post('', data);
+      //   return resp;
+      // } catch (error) {
+      //   return error;
+      // }
+    })
+
 };
