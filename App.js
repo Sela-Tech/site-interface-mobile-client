@@ -5,6 +5,7 @@ import SplashScreen from './src/screens/SplashScreen';
 import { RootNavigator } from './src/Navigator';
 import ErrorHandler from './src/components/ErrorHandler';
 import NavigationService from './src/services/NavigationService';
+import store from './store';
 import { WHITE } from './src/utils/constants';
 
 const styles = StyleSheet.create({
@@ -37,15 +38,17 @@ export default class App extends Component {
       return <SplashScreen />;
     }
     return (
-      <ErrorHandler>
-        <View style={styles.container}>
-          <RootNavigator
-            ref={navigatorRef => {
-              NavigationService.setTopLevelNavigator(navigatorRef);
-            }}
-          />
-        </View>
-      </ErrorHandler>
+      <Provider store={store.store}>
+        <ErrorHandler>
+          <View style={styles.container}>
+            <RootNavigator
+              ref={navigatorRef => {
+                NavigationService.setTopLevelNavigator(navigatorRef);
+              }}
+            />
+          </View>
+        </ErrorHandler>
+      </Provider>
     );
   }
 }

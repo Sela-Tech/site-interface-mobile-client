@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { ImageBackground } from 'react-native';
+import PropTypes from 'prop-types';
 
 export default class ErrorHandler extends Component {
   constructor(props) {
@@ -33,3 +34,7 @@ export default class ErrorHandler extends Component {
     return children;
   }
 }
+
+ErrorHandler.propTypes = {
+  children: PropTypes.element.isRequired,
+};
