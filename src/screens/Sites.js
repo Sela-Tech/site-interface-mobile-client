@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView, AsyncStorage } from 'react-native';
 import { connect } from 'react-redux';
 import { getAllImages, uploadSingleImage, addNewImage } from '../../actions/images';
 import Spinner from '../components/Spinner';
@@ -37,32 +37,33 @@ class Sites extends Component {
 
 
   async componentDidMount() {
+    // await AsyncStorage.removeItem('images');
     try {
       await this.props.getAllImages();
       const images = this.props.images && this.props.images.images;
 
 
-      images.map(async (val) => {
-        try {
-          let resp = await this.props.uploadSingleImage(val, images);
-          console.log('ress', resp)
-          console.log('val', val);
-          if (resp.message === 'Saved Successfully.') {
-            let a = this.filterImages(val, images);
-            console.log('a', a.length);
-            await this.props.addNewImage(a);
-          }
-        }
-        catch (err) {
-          console.log('err', err.message);
-        }
+
+
+      let imageQuery = images.map(async (val, index) => {
+        console.log('index', images);
+        return await this.props.uploadSingleImage(val, images);
       });
+
+      Promise.all(imageQuery)
+        .then((completed) => {
+          console.log('completed', completed);
+        })
+        .catch(err => console.log('err', err.message));
+
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ error: err.message, loading: false });
     }
 
   }
+
+
 
 
 

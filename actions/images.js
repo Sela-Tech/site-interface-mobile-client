@@ -28,14 +28,15 @@ export const imageLoadingError = error => ({
 });
 
 export const addNewImage = data => dispatch => {
+  console.log('count', data.length);
   return AsyncStorage.setItem('images', JSON.stringify(data))
     .then(() => {
       dispatch(imageIsLoading(false));
-      dispatch(addImage(data));
+      return dispatch(addImage(data));
     })
     .catch(err => {
       dispatch(imageIsLoading(false));
-      dispatch(imageLoadingError(err.message || 'ERROR'));
+      return dispatch(imageLoadingError(err.message || 'ERROR'));
     });
 }
 
@@ -53,6 +54,13 @@ export const getAllImages = () => dispatch =>
     });
 
 
+filterImages = (small, big) => {
+  // console.log('b', big);
+  console.log('big', big);
+
+  console.log('ssjkjdjdjkjkd')
+  return big.filter(d => d.uri !== small.uri);
+}
 
 
 
@@ -65,23 +73,28 @@ export const uploadSingleImage = (data, images) => dispatch => {
         return dispatch(imageRollback(data));
       }
       else {
-        // dispatch(imageIsLoading(false));
-        // console.log(images[0].evidence_name)
-        // addImage(images)
         let a = this.filterImages(data, images);
-        console.log('a', a.length)
-        this.addNewImage(a);
-        return resp.data;
+        console.log(a.length)
+        // console.log('the val', a);
+
+        return dispatch(addNewImage(a));
+        // console.log('ddjjdjdd', resp.data)
+        // let respData = {
+        //   resp: resp.data,
+        //   data,
+        //   images,
+        // };
+
+        // console.log('resp dd', respData);
+        // return respData;
       }
     })
     .catch(err => {
+      console.log('faield', err.message)
       dispatch(imageLoadingError(err.message || 'ERROR'));
       return false;
     });
 };
 
 
-filterImages = (small, big) => {
-  console.log('b', big.length)
-  return big.filter(d => d.evidence_name !== small.evidence_name);
-}
+

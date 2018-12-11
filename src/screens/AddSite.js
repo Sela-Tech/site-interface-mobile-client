@@ -9,7 +9,7 @@ import Input from '../components/Input';
 import Box from '../components/Box';
 import Button from '../components/Button';
 import { YELLOW } from '../utils/constants';
-import * as API from '../utils/api';
+
 
 const { height, width } = Dimensions.get('window');
 
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
 
 class AddSite extends Component {
   state = {
-    isConnected: true,
+    isConnected: false,
     siteName: '',
     buttonLoading: false,
     step: 0,
@@ -77,6 +77,7 @@ class AddSite extends Component {
   };
 
   async componentWillMount() {
+
     try {
       const { status } = await Permissions.askAsync(Permissions.CAMERA);
       this.setState({ permissionsGranted: status === 'granted' });
@@ -117,6 +118,7 @@ class AddSite extends Component {
     this.setState({ buttonLoading: true });
     const { newBox, siteName, isConnected } = this.state;
     const allImages = this.props.images && this.props.images.images;
+    
     if (siteName === '') {
       this.setState({ buttonLoading: false });
       return alert('Enter site name');
@@ -134,7 +136,7 @@ class AddSite extends Component {
 
       data.map(d => {
         const imageName = d.uri.split('/');
-        d.author = this.props && this.props.name && this.props.name.name && this.props.name.name.name; // eslint-disable-line
+        d.author = this.props && this.props.name && this.props.name.name && this.props.name.name.name || ' .'; // eslint-disable-line
         d.site_name = siteName;
         d.evidence_name = imageName[imageName.length - 1];
         d.longitude = longitude;
@@ -148,7 +150,10 @@ class AddSite extends Component {
         data,
       });
 
+      console.log('datat', data);
       if (isConnected === false) {
+        console.log('sjjjdjdjd')
+        console.log('all t', allImages);
         this.failedToUpload(allImages, data);
       }
       else {
@@ -161,7 +166,7 @@ class AddSite extends Component {
               await this.failedToUpload(allImages, data);
             }
           })
-          .catch(async (err) => {
+          .catch(async () => {
             await this.failedToUpload(allImages, data);
           });
         this.setState({ buttonLoading: false });
@@ -175,6 +180,7 @@ class AddSite extends Component {
     if (images === null) {
       images = [];
     }
+    console.log('the images', images)
     await this.props.addNewImage(images.concat(data));
     return this.props.navigation.navigate('Sites');
   };
