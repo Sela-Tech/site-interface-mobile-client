@@ -32,44 +32,52 @@ class Sites extends Component {
 
   state = {
     loading: true,
-  }
+  };
 
   async componentWillMount() {
-    this.setState()
+    this.setState();
     try {
       await this.props.getAllImages();
-      console.log('this.props');
       this.setState({ loading: false });
-    }
-    catch (err) {
+    } catch (err) {
       this.setState({ error: error.message, loading: false });
     }
   }
 
   render() {
     const { loading } = this.state;
+    const images = this.props.images && this.props.images.images;
     return (
       <ScrollView contentContainerStyle={styles.container}>
-        {
-          loading === true ? (
-            <Spinner />
-          ) :
-            (
+        {loading === true ? (
+          <Spinner />
+        ) : (
+            <Fragment>
+              <Box fn={() => this.props.navigation.navigate('AddSite')} />
               <Fragment>
-                <Box fn={() => this.props.navigation.navigate('AddSite')} />
-                <Box empty siteName="Abuja" imageSource={require('../../assets/road.jpeg')} />
-                <Box empty siteName="Abuja" imageSource={require('../../assets/house.png')} />
-                <Box empty siteName="Abuja" imageSource={require('../../assets/road.jpeg')} />
-                <Box empty imageSource={require('../../assets/house.png')} />
-                <Box empty siteName="Abuja" imageSource={require('../../assets/house.png')} />
-                <Box empty siteName="Abuja" imageSource={require('../../assets/road.jpeg')} />
-                <Box empty imageSource={require('../../assets/house.png')} />
-                <Box empty siteName="Abuja" imageSource={require('../../assets/house.png')} />
-                <Box empty siteName="Abuja" imageSource={require('../../assets/road.jpeg')} />
-                <Box empty imageSource={require('../../assets/house.png')} />
+                {
+                  this.props.images && this.props.images.images === null ? null
+                    : (
+                      this.props.images && this.props.images.images.length === 0 ? null : (
+
+                        <Fragment>{
+                          images.map((v, index) => (
+                            <Box
+                              fn={() => this.openCamera()}
+                              key={index}
+                              empty={(v && v.uri) !== ''}
+                              imageSource={{ uri: v.uri }}
+                              siteName={v.siteName}
+                            />
+                          ))
+                        }
+                        </Fragment>
+                      )
+                    )
+                }
               </Fragment>
-            )
-        }
+            </Fragment>
+          )}
       </ScrollView>
     );
   }
@@ -82,7 +90,6 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   getAllImages: () => dispatch(getAllImages()),
 });
-
 
 export default connect(
   mapStateToProps,

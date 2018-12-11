@@ -12,6 +12,11 @@ export const addImage = image => ({
   image,
 });
 
+export const imageRollback = image => ({
+  type: types.IMAGE_ROLLBACK,
+  image,
+});
+
 export const imageIsLoading = bool => ({
   type: types.IMAGE_IS_LOADING,
   isLoading: bool,
@@ -22,8 +27,8 @@ export const imageLoadingError = error => ({
   error,
 });
 
-export const addNewImage = data => dispatch =>
-  AsyncStorage.setItem('images', data)
+export const addNewImage = data => dispatch => {
+  return AsyncStorage.setItem('images', JSON.stringify(data))
     .then(() => {
       dispatch(imageIsLoading(false));
       dispatch(addImage(data));
@@ -32,6 +37,8 @@ export const addNewImage = data => dispatch =>
       dispatch(imageIsLoading(false));
       dispatch(imageLoadingError(err.message || 'ERROR'));
     });
+}
+
 
 export const getAllImages = () => dispatch =>
   AsyncStorage.getItem('images')
@@ -45,15 +52,23 @@ export const getAllImages = () => dispatch =>
       dispatch(imageLoadingError(err.message || 'ERROR'));
     });
 
-export const uploadSingleImage = data => dispatch => {
-  upload(data)
+
+
+export const uploadSingleImage = (data, allImages) => dispatch => {
+  return upload(data)
     .then(resp => {
-      dispatch(imageIsLoading(false));
-      dispatch(addImage(data));
-      return resp;
+      if (resp === false) {
+        addImage(allImages);
+        return dispatch(imageRollback(data));
+      }
+      else {
+        dispatch(imageIsLoading(false));
+        dispatch(addImage(data));
+        return resp;
+      }
     })
     .catch(err => {
       dispatch(imageLoadingError(err.message || 'ERROR'));
-      return err.message;
+      return false;
     });
-}
+};

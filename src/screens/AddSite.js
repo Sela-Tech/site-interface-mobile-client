@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, TouchableOpacity, NetInfo } from 'react-native';
 import { Location, Permissions, Camera, Constants } from 'expo';
 import { connect } from 'react-redux';
 import { uploadSingleImage, addNewImage } from '../../actions/images';
@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
 
 class AddSite extends Component {
   state = {
+    isConnected: false,
     siteName: '',
     buttonLoading: false,
     step: 0,
@@ -85,6 +86,24 @@ class AddSite extends Component {
     }
   }
 
+  componentDidMount() {
+    NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
+  }
+
+  componentWillUnmount() {
+    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+  }
+
+
+  handleConnectivityChange = isConnected => {
+    if (isConnected) {
+      this.setState({ isConnected });
+    } else {
+      this.setState({ isConnected });
+    }
+  };
+
+
   getLocationAsync = async () => {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status === 'granted') {
@@ -96,19 +115,28 @@ class AddSite extends Component {
   };
 
   save = async () => {
+
     this.setState({ buttonLoading: true });
-    const { newBox, siteName } = this.state;
+    const { newBox, siteName, isConnected } = this.state;
+
+    if (siteName === '') {
+      this.setState({ buttonLoading: false });
+      return alert('Enter site name');
+    }
+
     try {
       const status = await this.getLocationAsync();
       if (status === false) {
+        this.setState({ buttonLoading: false });
         return alert('location access denied');
       }
+
       const { longitude, latitude } = status.coords;
       const data = newBox.filter(v => v.uri !== '');
 
       data.map(d => {
         const imageName = d.uri.split('/');
-        d.author = 'same';//this.props && this.props.name && this.props.name.name && this.props.name.name.name; // eslint-disable-line
+        d.author = this.props && this.props.name && this.props.name.name && this.props.name.name.name; // eslint-disable-line
         d.site_name = siteName;
         d.evidence_name = imageName[imageName.length - 1];
         d.longitude = longitude;
@@ -120,23 +148,29 @@ class AddSite extends Component {
         longitude,
         latitude,
         data,
-        buttonLoading: false,
       });
-      try {
-        const { uploadSingleImage } = this.props;
-        const resp = await API.upload(data[0]);//uploadSingleImage(data[0])//API.upload(data[0]);
-        console.log('resp--ds', resp);
-        if (resp.data.message === 'Saved Successfully') {
-          this.props.navigation.navigate('Sites');
-        } else {
-          console.log('failed');
+      let allImages = this.props.images && this.props.images.images;
+      if (isConnected === false) {
+        console.log("fjjkdkjdjkjkd", allImages)
+        if (allImages === null) {
+          allImages = [];
         }
-      } catch (err) {
-        console.log('err', err.message)
-        this.setState({ err: err.message });
+        await this.props.addNewImage(allImages.concat(data));
+        return this.props.navigation.navigate('Sites');
       }
+
+      this.props.uploadSingleImage(data[0], allImages)
+        .then(resp => {
+          this.setState({ buttonLoading: false });
+          if (resp.data.message === 'Saved Successfully.') {
+            this.props.navigation.navigate('Sites');
+          } else {
+            console.log('failed');
+          }
+        })
+        .catch(err => this.setState({ err: err.message }));
+      this.setState({ buttonLoading: false });
     } catch (err) {
-      console.log('err', err.message)
       this.setState({ buttonLoading: false, error: err.message });
     }
   };
@@ -192,7 +226,9 @@ class AddSite extends Component {
   };
 
   render() {
-    const { buttonLoading, siteName, openCamera, type, flash, autoFocus, newBox } = this.state;
+    const { buttonLoading, siteName, openCamera, type, flash, autoFocus, newBox, isConnected } = this.state;
+
+    console.log('network status', isConnected);
     return (
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container}>
         {openCamera ? (
@@ -262,7 +298,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   uploadSingleImage: data => dispatch(uploadSingleImage(data)),
-  addNewImage: data => dispatch(addNewImage(data))
+  addNewImage: data => dispatch(addNewImage(data)),
 });
 
 export default connect(

@@ -37,67 +37,42 @@ const options = {
   keyPrefix: 'uploads/',
   bucket: 'iracks-dump',
   region: 'us-east-1',
-  accessKey: 'AKIAIRTNAQCMVZ5BFDGA',
-  secretKey: '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',
+
   successActionStatus: 201,
 };
 
-const uploadToAWS = file => {
-  return RNS3.put(file, options)
+const uploadToAWS = file =>
+  RNS3.put(file, options)
     .then(response => {
       if (response.status !== 201) {
-        console.log('failed');
-        return false
+        return false;
       }
-      else {
-        return response.body;
-      }
+      return response.body;
     })
     .catch(err => {
-      return false;
+      console.log('err', err.message);
     });
-};
 
-export const upload = async data => {
-  console.log('data gotten', data);
-
-  // try {
-  //   const resp = await axios.post('', data);
-  //   return resp;
-  // } catch (error) {
-  //   return error;
-  // }
+export const upload = data => {
   const file = {
     uri: data.uri,
     name: data.evidence_name,
     type: 'image/png',
   };
   this.postData = data;
-  uploadToAWS(file, data)
-    .then(async (awsReply) => {
+  return uploadToAWS(file, data)
+    .then(awsReply => {
       if (awsReply === false) {
         return false;
       }
       const data = this.postData;
-      // console.log('lets see data', data);
-      console.log('awsReply', awsReply);
-
-      data.evidence_name = awsReply.location;
-      console.log('lets see data', data)
-
-      return axios.post('', data)
-        .then(resp => {
-          return resp;
-        })
-        .catch(err => {
-          return err;
-        })
-      // try {
-      //   const resp = await axios.post('', data);
-      //   return resp;
-      // } catch (error) {
-      //   return error;
-      // }
+      data.evidence_name = awsReply.postResponse.location;
+      return axios
+        .post('/', data)
+        .then(resp => resp)
+        .catch(err => err);
     })
-
+    .catch(err => {
+      console.log('failed', err.message);
+    });
 };

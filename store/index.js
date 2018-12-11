@@ -1,5 +1,7 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import ReduxThunk from 'redux-thunk';
+import { offline } from '@redux-offline/redux-offline';
+import offlineConfig from '@redux-offline/redux-offline/lib/defaults';
 import rootReducer from '../reducers';
 
 // const serviceMiddleware = myServiceMiddleware(API);
@@ -10,11 +12,15 @@ const middlewares = [
   // thunk middleware can also accept an extra argument to be passed to each thunk action
   // https://github.com/gaearon/redux-thunk#injecting-a-custom-argument
   ReduxThunk,
-  // serviceMiddleware,
   // logger, // use during development alone
 ];
 
-const store = createStore(rootReducer, {}, compose(applyMiddleware(...middlewares)));
+const store = createStore(
+  rootReducer,
+  {},
+  compose(applyMiddleware(...middlewares)),
+  // compose(applyMiddleware(...middlewares, offline(offlineConfig))),
+);
 
 // const persistor = persistStore(store);
 

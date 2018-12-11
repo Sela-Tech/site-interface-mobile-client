@@ -1,11 +1,13 @@
-
 import * as types from '../actions/actionTypes';
 
-const nameReducer = (state = {
-  name: '',
-  loading: true,
-  error: null,
-}, action) => {
+const nameReducer = (
+  state = {
+    name: '',
+    loading: true,
+    error: null,
+  },
+  action,
+) => {
   switch (action.type) {
     case types.GET_NAME:
       return { ...state, name: action.name };

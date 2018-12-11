@@ -22,9 +22,12 @@ class AuthLoading extends React.Component {
   getKey = async () => {
     try {
       await this.props.getName();
-      console.log('thrhhr', this.props.name);
-      if (this.props && this.props.name && this.props.name.name !== '') {
+
+      if (this.props && this.props.name && this.props.name.name !== null) {
         this.props.navigation.navigate('App');
+      }
+      else if (this.props && this.props.name && this.props.name.name === '') {
+        this.props.navigation.navigate('Auth');
       }
       else {
         this.props.navigation.navigate('Auth');
@@ -41,7 +44,7 @@ class AuthLoading extends React.Component {
       </View>
     );
   }
-};
+}
 
 const mapStateToProps = state => ({
   name: state.name,
@@ -55,4 +58,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(AuthLoading);
-

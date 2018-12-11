@@ -62,8 +62,7 @@ class Home extends Component {
     return (
       <DismissKeyboard>
         <KeyboardAvoidingView
-          behavior="padding"
-          style={{ flex: 1 }}>
+          behavior="padding" style={{ flex: 1 }}>
           <View style={styles.container}>
             <View style={styles.begContainer}>
               <Image source={require('../../assets/icon.png')} />
