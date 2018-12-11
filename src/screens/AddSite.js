@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
 
 class AddSite extends Component {
   state = {
-    isConnected: false,
+    isConnected: true,
     siteName: '',
     buttonLoading: false,
     step: 0,
@@ -79,7 +79,6 @@ class AddSite extends Component {
   async componentWillMount() {
     try {
       const { status } = await Permissions.askAsync(Permissions.CAMERA);
-      console.log('status', status);
       this.setState({ permissionsGranted: status === 'granted' });
     } catch (error) {
       this.setState({ error: error.message });
@@ -115,10 +114,9 @@ class AddSite extends Component {
   };
 
   save = async () => {
-
     this.setState({ buttonLoading: true });
     const { newBox, siteName, isConnected } = this.state;
-
+    const allImages = this.props.images && this.props.images.images;
     if (siteName === '') {
       this.setState({ buttonLoading: false });
       return alert('Enter site name');
@@ -149,30 +147,36 @@ class AddSite extends Component {
         latitude,
         data,
       });
-      let allImages = this.props.images && this.props.images.images;
-      if (isConnected === false) {
-        console.log("fjjkdkjdjkjkd", allImages)
-        if (allImages === null) {
-          allImages = [];
-        }
-        await this.props.addNewImage(allImages.concat(data));
-        return this.props.navigation.navigate('Sites');
-      }
 
-      this.props.uploadSingleImage(data[0], allImages)
-        .then(resp => {
-          this.setState({ buttonLoading: false });
-          if (resp.data.message === 'Saved Successfully.') {
-            this.props.navigation.navigate('Sites');
-          } else {
-            console.log('failed');
-          }
-        })
-        .catch(err => this.setState({ err: err.message }));
-      this.setState({ buttonLoading: false });
+      if (isConnected === false) {
+        this.failedToUpload(allImages, data);
+      }
+      else {
+        this.props.uploadSingleImage(data[0], allImages)
+          .then(async (resp) => {
+            this.setState({ buttonLoading: false });
+            if (resp.data.message === 'Saved Successfully.') {
+              this.props.navigation.navigate('Sites');
+            } else {
+              await this.failedToUpload(allImages, data);
+            }
+          })
+          .catch(async (err) => {
+            await this.failedToUpload(allImages, data);
+          });
+        this.setState({ buttonLoading: false });
+      }
     } catch (err) {
       this.setState({ buttonLoading: false, error: err.message });
     }
+  };
+
+  failedToUpload = async (images, data) => {
+    if (images === null) {
+      images = [];
+    }
+    await this.props.addNewImage(images.concat(data));
+    return this.props.navigation.navigate('Sites');
   };
 
   openCamera = () => this.setState({ openCamera: true });
@@ -228,7 +232,7 @@ class AddSite extends Component {
   render() {
     const { buttonLoading, siteName, openCamera, type, flash, autoFocus, newBox, isConnected } = this.state;
 
-    console.log('network status', isConnected);
+    console.log('network status', isConnected, siteName);
     return (
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container}>
         {openCamera ? (
@@ -252,7 +256,7 @@ class AddSite extends Component {
                 </View>
                 <View style={{ marginTop: 10 }}>
                   <Input
-                    value={siteName}
+                    value={this.state.siteName}
                     text="What is the name of the site"
                     placeHolderColor="#696F74"
                     style={styles.inputStyle}
@@ -297,7 +301,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  uploadSingleImage: data => dispatch(uploadSingleImage(data)),
+  uploadSingleImage: (data, images) => dispatch(uploadSingleImage(data, images)),
   addNewImage: data => dispatch(addNewImage(data)),
 });
 

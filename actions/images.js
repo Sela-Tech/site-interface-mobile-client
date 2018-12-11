@@ -54,17 +54,24 @@ export const getAllImages = () => dispatch =>
 
 
 
-export const uploadSingleImage = (data, allImages) => dispatch => {
+
+
+export const uploadSingleImage = (data, images) => dispatch => {
+
   return upload(data)
     .then(resp => {
       if (resp === false) {
-        addImage(allImages);
+        addImage(images);
         return dispatch(imageRollback(data));
       }
       else {
-        dispatch(imageIsLoading(false));
-        dispatch(addImage(data));
-        return resp;
+        // dispatch(imageIsLoading(false));
+        // console.log(images[0].evidence_name)
+        // addImage(images)
+        let a = this.filterImages(data, images);
+        console.log('a', a.length)
+        this.addNewImage(a);
+        return resp.data;
       }
     })
     .catch(err => {
@@ -72,3 +79,9 @@ export const uploadSingleImage = (data, allImages) => dispatch => {
       return false;
     });
 };
+
+
+filterImages = (small, big) => {
+  console.log('b', big.length)
+  return big.filter(d => d.evidence_name !== small.evidence_name);
+}

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import { connect } from 'react-redux';
-import { getAllImages } from '../../actions/images';
+import { getAllImages, uploadSingleImage, addNewImage } from '../../actions/images';
 import Spinner from '../components/Spinner';
 import Box from '../components/Box';
 
@@ -34,15 +34,37 @@ class Sites extends Component {
     loading: true,
   };
 
-  async componentWillMount() {
-    this.setState();
+
+
+  async componentDidMount() {
     try {
       await this.props.getAllImages();
+      const images = this.props.images && this.props.images.images;
+
+
+      images.map(async (val) => {
+        try {
+          let resp = await this.props.uploadSingleImage(val, images);
+          console.log('ress', resp)
+          console.log('val', val);
+          if (resp.message === 'Saved Successfully.') {
+            let a = this.filterImages(val, images);
+            console.log('a', a.length);
+            await this.props.addNewImage(a);
+          }
+        }
+        catch (err) {
+          console.log('err', err.message);
+        }
+      });
       this.setState({ loading: false });
     } catch (err) {
-      this.setState({ error: error.message, loading: false });
+      this.setState({ error: err.message, loading: false });
     }
+
   }
+
+
 
   render() {
     const { loading } = this.state;
@@ -88,10 +110,13 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  uploadSingleImage: (data, images) => dispatch(uploadSingleImage(data, images)),
   getAllImages: () => dispatch(getAllImages()),
+  addNewImage: data => dispatch(addNewImage(data)),
 });
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(Sites);
+

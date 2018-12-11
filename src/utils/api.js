@@ -37,12 +37,11 @@ const options = {
   keyPrefix: 'uploads/',
   bucket: 'iracks-dump',
   region: 'us-east-1',
-
   successActionStatus: 201,
 };
 
-const uploadToAWS = file =>
-  RNS3.put(file, options)
+const uploadToAWS = file => {
+  return RNS3.put(file, options)
     .then(response => {
       if (response.status !== 201) {
         return false;
@@ -51,7 +50,10 @@ const uploadToAWS = file =>
     })
     .catch(err => {
       console.log('err', err.message);
+      return false;
     });
+}
+
 
 export const upload = data => {
   const file = {
@@ -60,6 +62,7 @@ export const upload = data => {
     type: 'image/png',
   };
   this.postData = data;
+
   return uploadToAWS(file, data)
     .then(awsReply => {
       if (awsReply === false) {
@@ -70,9 +73,10 @@ export const upload = data => {
       return axios
         .post('/', data)
         .then(resp => resp)
-        .catch(err => err);
+        .catch(err => false);
     })
     .catch(err => {
       console.log('failed', err.message);
     });
 };
+
