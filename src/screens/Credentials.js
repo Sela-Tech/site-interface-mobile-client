@@ -1,5 +1,12 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Image, Dimensions, KeyboardAvoidingView, ScrollView } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Image,
+  Dimensions,
+  KeyboardAvoidingView,
+  ScrollView,
+} from 'react-native';
 import { connect } from 'react-redux';
 import { getAccessCredentials } from '../../actions/credentials';
 import DismissKeyboard from '../components/DismissKeyboard';
@@ -41,6 +48,7 @@ class Credentials extends Component {
   };
 
   saveCredentials = async () => {
+    console.log('djjdjsjj');
     this.setState({ loading: true });
     const { password } = this.state;
     const { getAccessCredentials } = this.props;
@@ -52,9 +60,8 @@ class Credentials extends Component {
       const resp = await getAccessCredentials(data);
       this.setState({ loading: false });
       if (resp === 200) {
-        this.props.navigation.navigate('Sites');
-      }
-      else {
+        this.props.navigation.navigate('App');
+      } else {
         alert('Wrong password');
       }
     } catch (error) {
@@ -77,13 +84,17 @@ class Credentials extends Component {
             <View style={styles.otherContainer}>
               <View style={ExtStyle.align}>
                 <B size={20}> Welcome. </B>
-                <Text style={{ fontWeight: '400', fontSize: 18 }}> Enter your password to start</Text>
+                <Text style={{ fontWeight: '400', fontSize: 18 }}>
+                  {' '}
+                  Enter your password to start
+                </Text>
               </View>
               <View style={{ alignItems: 'center', margin: 10 }}>
                 <View>
                   <Input
                     value={password}
                     text="Password"
+                    secure
                     placeHolderColor="#696F74"
                     style={styles.inputStyle}
                     onChangeTheText={password => this.setState({ password })}

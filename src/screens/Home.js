@@ -1,5 +1,12 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Image, Dimensions, KeyboardAvoidingView, ScrollView } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Image,
+  Dimensions,
+  KeyboardAvoidingView,
+  ScrollView,
+} from 'react-native';
 import { connect } from 'react-redux';
 import { addNewName } from '../../actions/name';
 import DismissKeyboard from '../components/DismissKeyboard';

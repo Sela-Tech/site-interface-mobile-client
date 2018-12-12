@@ -24,7 +24,11 @@ class AuthLoading extends React.Component {
       await this.props.getPassCredentials();
       if (this.props && this.props.credentials && this.props.credentials.credentials !== null) {
         this.props.navigation.navigate('App');
-      } else if (this.props && this.props.credentials && this.props.credentials.credentials === '') {
+      } else if (
+        this.props &&
+        this.props.credentials &&
+        this.props.credentials.credentials === ''
+      ) {
         this.props.navigation.navigate('Auth');
       } else {
         this.props.navigation.navigate('Auth');

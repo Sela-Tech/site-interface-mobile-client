@@ -36,8 +36,8 @@ export const CredNavigator = createStackNavigator({
 export const HomeSwitchNavigator = createSwitchNavigator(
   {
     AuthLoading: AuthLoadingScreen,
-    App: AppRootNavigator,
-    Auth: AppNavigator,
+    AppHome: AppRootNavigator,
+    AuthHome: AppNavigator,
   },
   {
     initialRouteName: 'AuthLoading',
@@ -54,6 +54,5 @@ export const MainSwitchNavigator = createSwitchNavigator(
     initialRouteName: 'AuthLoading',
   },
 );
-
 
 export const RootNavigator = createAppContainer(MainSwitchNavigator);

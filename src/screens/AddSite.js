@@ -256,47 +256,47 @@ class AddSite extends Component {
             {this.renderBottomBar()}
           </Camera>
         ) : (
-            <Fragment>
-              <View style={{ paddingTop: '5%', flex: 1 }}>
-                <View>
-                  <Text style={{ fontSize: 20 }}>Site Name</Text>
-                </View>
-                <View style={{ marginTop: 10 }}>
-                  <Input
-                    value={this.state.siteName}
-                    text="What is the name of the site"
-                    placeHolderColor="#696F74"
-                    style={styles.inputStyle}
-                    onChangeTheText={siteName => this.setState({ siteName })}
+          <Fragment>
+            <View style={{ paddingTop: '5%', flex: 1 }}>
+              <View>
+                <Text style={{ fontSize: 20 }}>Site Name</Text>
+              </View>
+              <View style={{ marginTop: 10 }}>
+                <Input
+                  value={this.state.siteName}
+                  text="What is the name of the site"
+                  placeHolderColor="#696F74"
+                  style={styles.inputStyle}
+                  onChangeTheText={siteName => this.setState({ siteName })}
+                />
+              </View>
+              <View style={styles.image}>
+                {newBox.map((v, index) => (
+                  <Box
+                    fn={() => this.openCamera()}
+                    key={index}
+                    empty={(v && v.uri) !== ''}
+                    imageSource={{ uri: v.uri }}
                   />
-                </View>
-                <View style={styles.image}>
-                  {newBox.map((v, index) => (
-                    <Box
-                      fn={() => this.openCamera()}
-                      key={index}
-                      empty={(v && v.uri) !== ''}
-                      imageSource={{ uri: v.uri }}
-                    />
-                  ))}
-                </View>
+                ))}
+              </View>
 
-                <View>
-                  <View style={styles.bottom}>
-                    <View>
-                      <Button
-                        text="SAVE"
-                        color={YELLOW}
-                        style={styles.button}
-                        fn={() => this.save()}
-                        loading={buttonLoading}
-                      />
-                    </View>
+              <View>
+                <View style={styles.bottom}>
+                  <View>
+                    <Button
+                      text="SAVE"
+                      color={YELLOW}
+                      style={styles.button}
+                      fn={() => this.save()}
+                      loading={buttonLoading}
+                    />
                   </View>
                 </View>
               </View>
-            </Fragment>
-          )}
+            </View>
+          </Fragment>
+        )}
       </ScrollView>
     );
   }
@@ -309,7 +309,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  uploadSingleImage: (data, images, credentials) => dispatch(uploadSingleImage(data, images, credentials)),
+  uploadSingleImage: (data, images, credentials) =>
+    dispatch(uploadSingleImage(data, images, credentials)),
   addNewImage: data => dispatch(addNewImage(data)),
 });
 

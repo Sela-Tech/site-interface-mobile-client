@@ -12,11 +12,10 @@ const axios = Axios.create({
 
 // Add a request interceptor
 axios.interceptors.request.use(
-  (config) => {
+  config =>
     // Do something before request is sent
     // config,
-    return config;
-  },
+    config,
   error => {
     // Do something with request error
     // Do something with response error
@@ -53,8 +52,7 @@ const uploadToAWS = (file, data, cred) => {
       return response.body;
     })
     .catch(err => false);
-}
-
+};
 
 export const upload = (data, cred) => {
   const file = {
@@ -81,14 +79,11 @@ export const upload = (data, cred) => {
     });
 };
 
-export const getPassCredentials = async (data) => {
+export const getPassCredentials = async data => {
   try {
     const resp = await axios.post('/credentials', data);
     return resp;
-  }
-  catch (err) {
+  } catch (err) {
     return err;
   }
 };
-
-

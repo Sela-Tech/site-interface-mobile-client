@@ -34,12 +34,10 @@ export const saveCredentials = data => dispatch => {
     });
 };
 
-
 export const getAccessCredentials = data => dispatch =>
-  getCredentials(data)
-    .then((resp) => {
+  getPassCredentials(data)
+    .then(resp => {
       if (resp.status === 200) {
-        console.log('sjdjjdjdjdj')
         dispatch(credentialsIsLoading(false));
         dispatch(saveCredentials(resp.data));
       }
@@ -48,8 +46,8 @@ export const getAccessCredentials = data => dispatch =>
     .catch(err => {
       dispatch(credentialsIsLoading(false));
       dispatch(credentialsLoadingError(err.message || 'ERROR'));
+      return false;
     });
-
 
 export const getCredentials = () => dispatch =>
   AsyncStorage.getItem('credentials')
@@ -61,4 +59,5 @@ export const getCredentials = () => dispatch =>
     .catch(err => {
       dispatch(credentialsIsLoading(false));
       dispatch(credentialsLoadingError(err.message || 'ERROR'));
+      return false;
     });
