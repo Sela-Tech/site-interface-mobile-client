@@ -21,23 +21,26 @@ export const nameLoadingError = error => ({
   error,
 });
 
-export const addNewName = data => dispatch =>
-  AsyncStorage.setItem('name', data)
+export const addNewName = data => dispatch => {
+  dispatch(addName(data));
+  data = JSON.stringify(data);
+  return AsyncStorage.setItem('name', data)
     .then(() => {
       dispatch(nameIsLoading(false));
-      data = JSON.parse(data);
-      dispatch(addName(data));
     })
     .catch(err => {
       dispatch(nameIsLoading(false));
       dispatch(nameLoadingError(err.message || 'ERROR'));
     });
+}
+
+
 
 export const getName = () => dispatch =>
   AsyncStorage.getItem('name')
-    .then(resp => {
+    .then(async resp => {
       dispatch(nameIsLoading(false));
-      const name = JSON.parse(resp);
+      const name = await JSON.parse(resp);
       dispatch(getOwnerName(name));
     })
     .catch(err => {

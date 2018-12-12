@@ -61,13 +61,18 @@ const styles = StyleSheet.create({
 
 class AddSite extends Component {
 
-  // static navigationOptions = ({ navigation }) => ({
-  //   header: navigation.state.params ? null : undefined
-  // });
+
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerVisible: undefined,
+      header: undefined
+    }
+  }
   constructor(props) {
     super(props);
 
     this.state = {
+      author: JSON.parse(this.props && this.props.name && this.props.name.name).name,
       isConnected: true,
       siteName: '',
       buttonLoading: false,
@@ -82,6 +87,7 @@ class AddSite extends Component {
       ],
     };
   }
+
 
 
 
@@ -105,7 +111,6 @@ class AddSite extends Component {
   }
 
   handleConnectivityChange = isConnected => {
-    alert('connection --status', isConnected);
     if (isConnected) {
       this.setState({ isConnected });
     } else {
@@ -132,9 +137,11 @@ class AddSite extends Component {
 
   save = async () => {
     this.setState({ buttonLoading: true });
-    const { newBox, siteName, isConnected } = this.state;
-    const allImages = this.props.images && this.props.images.images;
-    const credentials = this.props.credentials && this.props.credentials.credentials;
+    const { newBox, siteName, isConnected, author } = this.state;
+    const allImage = this.props && this.props.images && this.props.images.images;
+    const allImages = allImage === null ? [] : allImage;
+    const credentials = this.props && this.props.credentials && this.props.credentials.credentials;
+
     if (siteName === '') {
       this.setState({ buttonLoading: false });
       return alert('Enter site name');
@@ -152,23 +159,20 @@ class AddSite extends Component {
 
       data.map(d => {
         const imageName = d.uri.split('/');
-        d.author = this.props && this.props.name && this.props.name.name && this.props.name.name.name || ' .'; // eslint-disable-line
+        d.author = author;
         d.site_name = siteName;
         d.evidence_name = imageName[imageName.length - 1];
         d.longitude = longitude;
         d.latitude = latitude;
         return d;
       });
-
-
-
       if (isConnected === false) {
         this.failedToUpload(allImages, data);
       } else {
         this.props
           .uploadSingleImage(data[0], allImages, credentials)
           .then(async resp => {
-            if (resp.data.message === 'Saved Successfully.') {
+            if (resp.message === 'Saved Successfully.') {
               alert('saved');
               this.setState({ buttonLoading: false });
               this.props.navigation.navigate('Sites');
@@ -177,6 +181,7 @@ class AddSite extends Component {
             }
           })
           .catch(async err => {
+            alert('err', err.message)
             await this.failedToUpload(allImages, data);
           });
       }
@@ -190,18 +195,19 @@ class AddSite extends Component {
     if (images === null) {
       images = [];
     }
-    alert('no internet')
     await this.props.addNewImage(images.concat(data));
     this.setState({ buttonLoading: false });
     return this.props.navigation.navigate('Sites');
   };
 
   openCamera = () => {
-    // this.props.navigation.setParams({
-    //   header: null
-    // });
     this.setState({ openCamera: true });
+    return this.props.navigation.setParams({
+      header: null,
+      headerVisible: null,
+    })
   }
+
 
   takePicture = async () => {
     let { step } = this.state;
@@ -342,3 +348,5 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(AddSite);
+
+

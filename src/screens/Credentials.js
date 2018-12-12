@@ -48,7 +48,6 @@ class Credentials extends Component {
   };
 
   saveCredentials = async () => {
-    console.log('djjdjsjj');
     this.setState({ loading: true });
     const { password } = this.state;
     const { getAccessCredentials } = this.props;

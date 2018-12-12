@@ -32,12 +32,10 @@ class Sites extends Component {
 
   state = {
     loading: true,
-    // isConnected: true,
+    isConnected: true,
   };
 
   async componentDidMount() {
-
-    // NetInfo.isConnected.fetch().then(isConnected => this.setState({ isConnected }))
     NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
     const { isConnected } = this.state;
 

@@ -27,16 +27,19 @@ export const imageLoadingError = error => ({
   error,
 });
 
-export const addNewImage = data => dispatch =>
-  AsyncStorage.setItem('images', JSON.stringify(data))
+export const addNewImage = data => dispatch => {
+  dispatch(addImage(data));
+  data = JSON.stringify(data)
+  return AsyncStorage.setItem('images', data)
     .then(() => {
       dispatch(imageIsLoading(false));
-      return dispatch(addImage(data));
     })
     .catch(err => {
       dispatch(imageIsLoading(false));
       return dispatch(imageLoadingError(err.message || 'ERROR'));
     });
+}
+
 
 export const getAllImages = () => dispatch =>
   AsyncStorage.getItem('images')
@@ -64,10 +67,12 @@ export const uploadSingleImage = (data, images, credentials) => dispatch =>
         addImage(images);
         return dispatch(imageRollback(data));
       }
+      else {
+        images = this.filterImages(data, images);
+        dispatch(addNewImage(images));
+        return resp.data;
+      }
 
-      images = this.filterImages(data, images);
-      dispatch(addNewImage(images));
-      return resp;
     })
     .catch(err => {
       dispatch(imageLoadingError(err.message || 'ERROR'));

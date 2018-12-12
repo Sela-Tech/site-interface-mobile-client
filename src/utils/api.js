@@ -44,6 +44,7 @@ const options = {
 const uploadToAWS = (file, data, cred) => {
   options.accessKey = cred.key;
   options.secretKey = cred.secret;
+
   return RNS3.put(file, options)
     .then(response => {
       if (response.status !== 201) {
@@ -60,6 +61,7 @@ export const upload = (data, cred) => {
     name: data.evidence_name,
     type: 'image/png',
   };
+
   this.postData = data;
 
   return uploadToAWS(file, data, cred)
@@ -67,16 +69,15 @@ export const upload = (data, cred) => {
       if (awsReply === false) {
         return false;
       }
-      const data = this.postData;
+      data = this.postData;
       data.evidence_name = awsReply.postResponse.location;
+
       return axios
         .post('/', data)
         .then(resp => resp)
         .catch(err => false);
     })
-    .catch(err => {
-      console.log('failed', err.message);
-    });
+    .catch(err => false);
 };
 
 export const getPassCredentials = async data => {
