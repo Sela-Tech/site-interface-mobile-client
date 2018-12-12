@@ -12,8 +12,7 @@ const nameReducer = (
     case types.GET_NAME:
       return { ...state, name: action.name };
     case types.ADD_NAME:
-      const data = { data: action.name };
-      return { ...state, name: data };
+      return { ...state, name: action.name };
     case types.NAME_IS_LOADING:
       return { ...state, loading: action.isLoading };
     case types.HANDLE_NAME_ERROR:
@@ -24,5 +23,3 @@ const nameReducer = (
 };
 
 export default nameReducer;
-
-// = { name, error, isLoading })

@@ -11,9 +11,6 @@ export const AppRootNavigator = createStackNavigator({
   AddSite: {
     screen: AddSite,
   },
-  Sites: {
-    screen: Sites,
-  },
 });
 
 export const AppNavigator = createStackNavigator({

@@ -10,7 +10,6 @@ import Box from '../components/Box';
 import Button from '../components/Button';
 import { YELLOW } from '../utils/constants';
 
-
 const { height, width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -77,7 +76,6 @@ class AddSite extends Component {
   };
 
   async componentWillMount() {
-
     try {
       const { status } = await Permissions.askAsync(Permissions.CAMERA);
       this.setState({ permissionsGranted: status === 'granted' });
@@ -94,7 +92,6 @@ class AddSite extends Component {
     NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
   }
 
-
   handleConnectivityChange = isConnected => {
     if (isConnected) {
       this.setState({ isConnected });
@@ -103,22 +100,23 @@ class AddSite extends Component {
     }
   };
 
-
   getLocationAsync = async () => {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status === 'granted') {
       return Location.getCurrentPositionAsync({
         enableHighAccuracy: true,
+        timeout: 20000, // , maximumAge: 10000,
       });
     }
     return false;
   };
 
   save = async () => {
+    console.log('the name', this.props.name.name.name);
     this.setState({ buttonLoading: true });
     const { newBox, siteName, isConnected } = this.state;
     const allImages = this.props.images && this.props.images.images;
-    
+
     if (siteName === '') {
       this.setState({ buttonLoading: false });
       return alert('Enter site name');
@@ -150,15 +148,12 @@ class AddSite extends Component {
         data,
       });
 
-      console.log('datat', data);
       if (isConnected === false) {
-        console.log('sjjjdjdjd')
-        console.log('all t', allImages);
         this.failedToUpload(allImages, data);
-      }
-      else {
-        this.props.uploadSingleImage(data[0], allImages)
-          .then(async (resp) => {
+      } else {
+        this.props
+          .uploadSingleImage(data[0], allImages)
+          .then(async resp => {
             this.setState({ buttonLoading: false });
             if (resp.data.message === 'Saved Successfully.') {
               this.props.navigation.navigate('Sites');
@@ -166,7 +161,7 @@ class AddSite extends Component {
               await this.failedToUpload(allImages, data);
             }
           })
-          .catch(async () => {
+          .catch(async err => {
             await this.failedToUpload(allImages, data);
           });
         this.setState({ buttonLoading: false });
@@ -180,7 +175,6 @@ class AddSite extends Component {
     if (images === null) {
       images = [];
     }
-    console.log('the images', images)
     await this.props.addNewImage(images.concat(data));
     return this.props.navigation.navigate('Sites');
   };
@@ -236,9 +230,16 @@ class AddSite extends Component {
   };
 
   render() {
-    const { buttonLoading, siteName, openCamera, type, flash, autoFocus, newBox, isConnected } = this.state;
-
-    console.log('network status', isConnected, siteName);
+    const {
+      buttonLoading,
+      siteName,
+      openCamera,
+      type,
+      flash,
+      autoFocus,
+      newBox,
+      isConnected,
+    } = this.state;
     return (
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container}>
         {openCamera ? (

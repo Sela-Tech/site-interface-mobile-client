@@ -27,9 +27,8 @@ export const imageLoadingError = error => ({
   error,
 });
 
-export const addNewImage = data => dispatch => {
-  console.log('count', data.length);
-  return AsyncStorage.setItem('images', JSON.stringify(data))
+export const addNewImage = data => dispatch =>
+  AsyncStorage.setItem('images', JSON.stringify(data))
     .then(() => {
       dispatch(imageIsLoading(false));
       return dispatch(addImage(data));
@@ -38,8 +37,6 @@ export const addNewImage = data => dispatch => {
       dispatch(imageIsLoading(false));
       return dispatch(imageLoadingError(err.message || 'ERROR'));
     });
-}
-
 
 export const getAllImages = () => dispatch =>
   AsyncStorage.getItem('images')
@@ -53,48 +50,25 @@ export const getAllImages = () => dispatch =>
       dispatch(imageLoadingError(err.message || 'ERROR'));
     });
 
-
 filterImages = (small, big) => {
-  // console.log('b', big);
-  console.log('big', big);
+  // not working --- don't know why
+  // return big.filter(d => d.uri !== small.uri);
+  big.shift();
+  return big;
+};
 
-  console.log('ssjkjdjdjkjkd')
-  return big.filter(d => d.uri !== small.uri);
-}
-
-
-
-export const uploadSingleImage = (data, images) => dispatch => {
-
-  return upload(data)
+export const uploadSingleImage = (data, images) => dispatch =>
+  upload(data)
     .then(resp => {
       if (resp === false) {
         addImage(images);
         return dispatch(imageRollback(data));
       }
-      else {
-        let a = this.filterImages(data, images);
-        console.log(a.length)
-        // console.log('the val', a);
 
-        return dispatch(addNewImage(a));
-        // console.log('ddjjdjdd', resp.data)
-        // let respData = {
-        //   resp: resp.data,
-        //   data,
-        //   images,
-        // };
-
-        // console.log('resp dd', respData);
-        // return respData;
-      }
+      images = this.filterImages(data, images);
+      return dispatch(addNewImage(images));
     })
     .catch(err => {
-      console.log('faield', err.message)
       dispatch(imageLoadingError(err.message || 'ERROR'));
       return false;
     });
-};
-
-
-

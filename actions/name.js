@@ -22,7 +22,7 @@ export const nameLoadingError = error => ({
 });
 
 export const addNewName = data => dispatch =>
-  AsyncStorage.setItem('nameo', data)
+  AsyncStorage.setItem('name', data)
     .then(() => {
       dispatch(nameIsLoading(false));
       dispatch(addName(data));
@@ -33,7 +33,7 @@ export const addNewName = data => dispatch =>
     });
 
 export const getName = () => dispatch =>
-  AsyncStorage.getItem('nameo')
+  AsyncStorage.getItem('name')
     .then(resp => {
       dispatch(nameIsLoading(false));
       const name = JSON.parse(resp);

@@ -1,7 +1,5 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import ReduxThunk from 'redux-thunk';
-import { offline } from '@redux-offline/redux-offline';
-import offlineConfig from '@redux-offline/redux-offline/lib/defaults';
 import rootReducer from '../reducers';
 
 // const serviceMiddleware = myServiceMiddleware(API);

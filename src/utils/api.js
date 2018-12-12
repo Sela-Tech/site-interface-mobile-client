@@ -40,20 +40,15 @@ const options = {
   successActionStatus: 201,
 };
 
-const uploadToAWS = file => {
-  return RNS3.put(file, options)
+const uploadToAWS = file =>
+  RNS3.put(file, options)
     .then(response => {
       if (response.status !== 201) {
         return false;
       }
       return response.body;
     })
-    .catch(err => {
-      console.log('err', err.message);
-      return false;
-    });
-}
-
+    .catch(err => false);
 
 export const upload = data => {
   const file = {
@@ -79,4 +74,3 @@ export const upload = data => {
       console.log('failed', err.message);
     });
 };
-

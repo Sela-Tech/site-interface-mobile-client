@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { StyleSheet, ScrollView, AsyncStorage } from 'react-native';
+import { StyleSheet, ScrollView, NetInfo } from 'react-native';
 import { connect } from 'react-redux';
 import { getAllImages, uploadSingleImage, addNewImage } from '../../actions/images';
 import Spinner from '../components/Spinner';
@@ -32,40 +32,37 @@ class Sites extends Component {
 
   state = {
     loading: true,
+    isConnected: true,
   };
 
-
-
   async componentDidMount() {
-    // await AsyncStorage.removeItem('images');
+    NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
+    const { isConnected } = this.state;
+
     try {
       await this.props.getAllImages();
       const images = this.props.images && this.props.images.images;
-
-
-
-
-      let imageQuery = images.map(async (val, index) => {
-        console.log('index', images);
-        return await this.props.uploadSingleImage(val, images);
-      });
-
-      Promise.all(imageQuery)
-        .then((completed) => {
-          console.log('completed', completed);
-        })
-        .catch(err => console.log('err', err.message));
-
+      if (isConnected) {
+        const imageQuery = images.map(async val => this.props.uploadSingleImage(val, images));
+        await Promise.all(imageQuery);
+      }
       this.setState({ loading: false });
     } catch (err) {
       this.setState({ error: err.message, loading: false });
     }
-
   }
 
+  componentWillUnmount() {
+    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+  }
 
-
-
+  handleConnectivityChange = isConnected => {
+    if (isConnected) {
+      this.setState({ isConnected });
+    } else {
+      this.setState({ isConnected });
+    }
+  };
 
   render() {
     const { loading } = this.state;
@@ -75,32 +72,26 @@ class Sites extends Component {
         {loading === true ? (
           <Spinner />
         ) : (
+          <Fragment>
+            <Box fn={() => this.props.navigation.navigate('AddSite')} />
             <Fragment>
-              <Box fn={() => this.props.navigation.navigate('AddSite')} />
-              <Fragment>
-                {
-                  this.props.images && this.props.images.images === null ? null
-                    : (
-                      this.props.images && this.props.images.images.length === 0 ? null : (
-
-                        <Fragment>{
-                          images.map((v, index) => (
-                            <Box
-                              fn={() => this.openCamera()}
-                              key={index}
-                              empty={(v && v.uri) !== ''}
-                              imageSource={{ uri: v.uri }}
-                              siteName={v.siteName}
-                            />
-                          ))
-                        }
-                        </Fragment>
-                      )
-                    )
-                }
-              </Fragment>
+              {this.props.images && this.props.images.images === null ? null : this.props.images &&
+                this.props.images.images.length === 0 ? null : (
+                  <Fragment>
+                  {images.map((v, index) => (
+                      <Box
+                      fn={() => this.openCamera()}
+                      key={index}
+                      empty={(v && v.uri) !== ''}
+                      imageSource={{ uri: v.uri }}
+                      siteName={v.siteName}
+                    />
+                  ))}
+                </Fragment>
+              )}
             </Fragment>
-          )}
+          </Fragment>
+        )}
       </ScrollView>
     );
   }
@@ -120,4 +111,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(Sites);
-

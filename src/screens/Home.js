@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Image, Dimensions, KeyboardAvoidingView } from 'react-native';
+import { View, StyleSheet, Image, Dimensions, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { connect } from 'react-redux';
 import { addNewName } from '../../actions/name';
 import DismissKeyboard from '../components/DismissKeyboard';
@@ -61,9 +61,8 @@ class Home extends Component {
     const { name, loading } = this.state;
     return (
       <DismissKeyboard>
-        <KeyboardAvoidingView
-          behavior="padding" style={{ flex: 1 }}>
-          <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <KeyboardAvoidingView behavior="padding" style={styles.container}>
             <View style={styles.begContainer}>
               <Image source={require('../../assets/icon.png')} />
             </View>
@@ -93,8 +92,8 @@ class Home extends Component {
                 </View>
               </View>
             </View>
-          </View>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </ScrollView>
       </DismissKeyboard>
     );
   }
