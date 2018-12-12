@@ -2,7 +2,9 @@ import { createStackNavigator, createAppContainer, createSwitchNavigator } from 
 import Home from './screens/Home';
 import Sites from './screens/Sites';
 import AddSite from './screens/AddSite';
+import Credentials from './screens/Credentials';
 import AuthLoadingScreen from './screens/AuthLoading';
+import CredLoadingScreen from './screens/CredLoading';
 
 export const AppRootNavigator = createStackNavigator({
   Sites: {
@@ -22,7 +24,16 @@ export const AppNavigator = createStackNavigator({
   },
 });
 
-export const SwitchNavigator = createSwitchNavigator(
+export const CredNavigator = createStackNavigator({
+  Home: {
+    screen: Credentials,
+    navigationOptions: {
+      header: null,
+    },
+  },
+});
+
+export const HomeSwitchNavigator = createSwitchNavigator(
   {
     AuthLoading: AuthLoadingScreen,
     App: AppRootNavigator,
@@ -32,4 +43,17 @@ export const SwitchNavigator = createSwitchNavigator(
     initialRouteName: 'AuthLoading',
   },
 );
-export const RootNavigator = createAppContainer(SwitchNavigator);
+
+export const MainSwitchNavigator = createSwitchNavigator(
+  {
+    AuthLoading: CredLoadingScreen,
+    App: HomeSwitchNavigator,
+    Auth: CredNavigator,
+  },
+  {
+    initialRouteName: 'AuthLoading',
+  },
+);
+
+
+export const RootNavigator = createAppContainer(MainSwitchNavigator);

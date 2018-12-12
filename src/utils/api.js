@@ -12,9 +12,11 @@ const axios = Axios.create({
 
 // Add a request interceptor
 axios.interceptors.request.use(
-  config =>
+  (config) => {
     // Do something before request is sent
-    config,
+    // config,
+    return config;
+  },
   error => {
     // Do something with request error
     // Do something with response error
@@ -40,8 +42,10 @@ const options = {
   successActionStatus: 201,
 };
 
-const uploadToAWS = file =>
-  RNS3.put(file, options)
+const uploadToAWS = (file, data, cred) => {
+  options.accessKey = cred.key;
+  options.secretKey = cred.secret;
+  return RNS3.put(file, options)
     .then(response => {
       if (response.status !== 201) {
         return false;
@@ -49,8 +53,10 @@ const uploadToAWS = file =>
       return response.body;
     })
     .catch(err => false);
+}
 
-export const upload = data => {
+
+export const upload = (data, cred) => {
   const file = {
     uri: data.uri,
     name: data.evidence_name,
@@ -58,7 +64,7 @@ export const upload = data => {
   };
   this.postData = data;
 
-  return uploadToAWS(file, data)
+  return uploadToAWS(file, data, cred)
     .then(awsReply => {
       if (awsReply === false) {
         return false;
@@ -74,3 +80,15 @@ export const upload = data => {
       console.log('failed', err.message);
     });
 };
+
+export const getPassCredentials = async (data) => {
+  try {
+    const resp = await axios.post('/credentials', data);
+    return resp;
+  }
+  catch (err) {
+    return err;
+  }
+};
+
+

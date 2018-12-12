@@ -25,6 +25,7 @@ export const addNewName = data => dispatch =>
   AsyncStorage.setItem('name', data)
     .then(() => {
       dispatch(nameIsLoading(false));
+      data = JSON.parse(data);
       dispatch(addName(data));
     })
     .catch(err => {

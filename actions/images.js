@@ -57,8 +57,8 @@ filterImages = (small, big) => {
   return big;
 };
 
-export const uploadSingleImage = (data, images) => dispatch =>
-  upload(data)
+export const uploadSingleImage = (data, images, credentials) => dispatch =>
+  upload(data, credentials)
     .then(resp => {
       if (resp === false) {
         addImage(images);
@@ -66,7 +66,8 @@ export const uploadSingleImage = (data, images) => dispatch =>
       }
 
       images = this.filterImages(data, images);
-      return dispatch(addNewImage(images));
+      dispatch(addNewImage(images));
+      return resp;
     })
     .catch(err => {
       dispatch(imageLoadingError(err.message || 'ERROR'));

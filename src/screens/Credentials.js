@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Image, Dimensions, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { connect } from 'react-redux';
-import { addNewName } from '../../actions/name';
+import { getAccessCredentials } from '../../actions/credentials';
 import DismissKeyboard from '../components/DismissKeyboard';
 import Text from '../components/Text';
 import B from '../components/BoldText';
@@ -34,21 +34,29 @@ const styles = StyleSheet.create({
   },
 });
 
-class Home extends Component {
+class Credentials extends Component {
   state = {
-    name: '',
+    password: '',
     loading: false,
   };
 
-  saveName = async () => {
+  saveCredentials = async () => {
     this.setState({ loading: true });
-    const { name } = this.state;
-    const { addName } = this.props;
+    const { password } = this.state;
+    const { getAccessCredentials } = this.props;
     try {
-      const data = JSON.stringify({ name });
-      await addName(data);
-      this.props.navigation.navigate('Sites');
-      this.setState({ loading: true });
+      const data = {
+        name: 'aws',
+        password: this.state.password,
+      };
+      const resp = await getAccessCredentials(data);
+      this.setState({ loading: false });
+      if (resp === 200) {
+        this.props.navigation.navigate('Sites');
+      }
+      else {
+        alert('Wrong password');
+      }
     } catch (error) {
       this.setState({
         error: error.message,
@@ -58,7 +66,7 @@ class Home extends Component {
   };
 
   render() {
-    const { name, loading } = this.state;
+    const { password, loading } = this.state;
     return (
       <DismissKeyboard>
         <ScrollView contentContainerStyle={styles.container}>
@@ -69,16 +77,16 @@ class Home extends Component {
             <View style={styles.otherContainer}>
               <View style={ExtStyle.align}>
                 <B size={20}> Welcome. </B>
-                <Text style={{ fontWeight: '400', fontSize: 18 }}> Enter your name to start</Text>
+                <Text style={{ fontWeight: '400', fontSize: 18 }}> Enter your password to start</Text>
               </View>
               <View style={{ alignItems: 'center', margin: 10 }}>
                 <View>
                   <Input
-                    value={name}
-                    text="Your full name"
+                    value={password}
+                    text="Password"
                     placeHolderColor="#696F74"
                     style={styles.inputStyle}
-                    onChangeTheText={name => this.setState({ name })}
+                    onChangeTheText={password => this.setState({ password })}
                   />
                 </View>
                 <View style={{ marginTop: '5%' }}>
@@ -86,7 +94,7 @@ class Home extends Component {
                     text="Start"
                     color={YELLOW}
                     textColor={WHITE}
-                    fn={() => this.saveName()}
+                    fn={() => this.saveCredentials()}
                     loading={loading}
                   />
                 </View>
@@ -100,14 +108,14 @@ class Home extends Component {
 }
 
 const mapStateToProps = state => ({
-  name: state.name,
+  credentials: state.credentials,
 });
 
 const mapDispatchToProps = dispatch => ({
-  addName: name => dispatch(addNewName(name)),
+  getAccessCredentials: data => dispatch(getAccessCredentials(data)),
 });
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(Home);
+)(Credentials);

@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
 
 class AddSite extends Component {
   state = {
-    isConnected: false,
+    isConnected: true,
     siteName: '',
     buttonLoading: false,
     step: 0,
@@ -112,11 +112,10 @@ class AddSite extends Component {
   };
 
   save = async () => {
-    console.log('the name', this.props.name.name.name);
     this.setState({ buttonLoading: true });
     const { newBox, siteName, isConnected } = this.state;
     const allImages = this.props.images && this.props.images.images;
-
+    const credentials = this.props.credentials && this.props.credentials.credentials;
     if (siteName === '') {
       this.setState({ buttonLoading: false });
       return alert('Enter site name');
@@ -152,9 +151,10 @@ class AddSite extends Component {
         this.failedToUpload(allImages, data);
       } else {
         this.props
-          .uploadSingleImage(data[0], allImages)
+          .uploadSingleImage(data[0], allImages, credentials)
           .then(async resp => {
             this.setState({ buttonLoading: false });
+            alert('saved');
             if (resp.data.message === 'Saved Successfully.') {
               this.props.navigation.navigate('Sites');
             } else {
@@ -305,10 +305,11 @@ class AddSite extends Component {
 const mapStateToProps = state => ({
   name: state.name,
   images: state.images,
+  credentials: state.credentials,
 });
 
 const mapDispatchToProps = dispatch => ({
-  uploadSingleImage: (data, images) => dispatch(uploadSingleImage(data, images)),
+  uploadSingleImage: (data, images, credentials) => dispatch(uploadSingleImage(data, images, credentials)),
   addNewImage: data => dispatch(addNewImage(data)),
 });
 

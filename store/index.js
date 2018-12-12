@@ -1,8 +1,8 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import ReduxThunk from 'redux-thunk';
 import rootReducer from '../reducers';
+import logger from 'redux-logger';
 
-// const serviceMiddleware = myServiceMiddleware(API);
 
 const middlewares = [
   // Add other middleware on this line...
