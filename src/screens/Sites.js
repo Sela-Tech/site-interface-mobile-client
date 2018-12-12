@@ -32,10 +32,12 @@ class Sites extends Component {
 
   state = {
     loading: true,
-    isConnected: true,
+    // isConnected: true,
   };
 
   async componentDidMount() {
+
+    // NetInfo.isConnected.fetch().then(isConnected => this.setState({ isConnected }))
     NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
     const { isConnected } = this.state;
 
@@ -68,33 +70,33 @@ class Sites extends Component {
   };
 
   render() {
-    const { loading } = this.state;
+    const { loading, isConnected } = this.state;
     const images = this.props.images && this.props.images.images;
     return (
       <ScrollView contentContainerStyle={styles.container}>
         {loading === true ? (
           <Spinner />
         ) : (
-          <Fragment>
-            <Box fn={() => this.props.navigation.navigate('AddSite')} />
             <Fragment>
-              {this.props.images && this.props.images.images === null ? null : this.props.images &&
-                this.props.images.images.length === 0 ? null : (
-                  <Fragment>
-                  {images.map((v, index) => (
-                      <Box
-                      fn={() => this.openCamera()}
-                      key={index}
-                      empty={(v && v.uri) !== ''}
-                      imageSource={{ uri: v.uri }}
-                      siteName={v.siteName}
-                    />
-                  ))}
-                </Fragment>
-              )}
+              <Box fn={() => this.props.navigation.navigate('AddSite')} />
+              <Fragment>
+                {this.props.images && this.props.images.images === null ? null : this.props.images &&
+                  this.props.images.images.length === 0 ? null : (
+                    <Fragment>
+                      {images.map((v, index) => (
+                        <Box
+                          fn={() => this.openCamera()}
+                          key={index}
+                          empty={(v && v.uri) !== ''}
+                          imageSource={{ uri: v.uri }}
+                          siteName={v.siteName}
+                        />
+                      ))}
+                    </Fragment>
+                  )}
+              </Fragment>
             </Fragment>
-          </Fragment>
-        )}
+          )}
       </ScrollView>
     );
   }

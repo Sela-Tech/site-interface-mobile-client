@@ -60,20 +60,30 @@ const styles = StyleSheet.create({
 });
 
 class AddSite extends Component {
-  state = {
-    isConnected: true,
-    siteName: '',
-    buttonLoading: false,
-    step: 0,
-    flash: 'off',
-    autoFocus: 'on',
-    newBox: [
-      {
-        uri: '',
-        name: '',
-      },
-    ],
-  };
+
+  // static navigationOptions = ({ navigation }) => ({
+  //   header: navigation.state.params ? null : undefined
+  // });
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isConnected: true,
+      siteName: '',
+      buttonLoading: false,
+      step: 0,
+      flash: 'off',
+      autoFocus: 'on',
+      newBox: [
+        {
+          uri: '',
+          name: '',
+        },
+      ],
+    };
+  }
+
+
 
   async componentWillMount() {
     try {
@@ -82,6 +92,8 @@ class AddSite extends Component {
     } catch (error) {
       this.setState({ error: error.message });
     }
+
+
   }
 
   componentDidMount() {
@@ -93,6 +105,7 @@ class AddSite extends Component {
   }
 
   handleConnectivityChange = isConnected => {
+    alert('connection --status', isConnected);
     if (isConnected) {
       this.setState({ isConnected });
     } else {
@@ -103,10 +116,16 @@ class AddSite extends Component {
   getLocationAsync = async () => {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status === 'granted') {
+      //https://github.com/expo/expo/issues/946
       return Location.getCurrentPositionAsync({
         enableHighAccuracy: true,
         timeout: 20000, // , maximumAge: 10000,
-      });
+      }).then(res => {
+        return res;
+      })
+        .catch(err => {
+          return false
+        });
     }
     return false;
   };
@@ -141,11 +160,7 @@ class AddSite extends Component {
         return d;
       });
 
-      this.setState({
-        longitude,
-        latitude,
-        data,
-      });
+
 
       if (isConnected === false) {
         this.failedToUpload(allImages, data);
@@ -153,9 +168,9 @@ class AddSite extends Component {
         this.props
           .uploadSingleImage(data[0], allImages, credentials)
           .then(async resp => {
-            this.setState({ buttonLoading: false });
-            alert('saved');
             if (resp.data.message === 'Saved Successfully.') {
+              alert('saved');
+              this.setState({ buttonLoading: false });
               this.props.navigation.navigate('Sites');
             } else {
               await this.failedToUpload(allImages, data);
@@ -164,9 +179,9 @@ class AddSite extends Component {
           .catch(async err => {
             await this.failedToUpload(allImages, data);
           });
-        this.setState({ buttonLoading: false });
       }
     } catch (err) {
+      alert(err.message);
       this.setState({ buttonLoading: false, error: err.message });
     }
   };
@@ -175,11 +190,18 @@ class AddSite extends Component {
     if (images === null) {
       images = [];
     }
+    alert('no internet')
     await this.props.addNewImage(images.concat(data));
+    this.setState({ buttonLoading: false });
     return this.props.navigation.navigate('Sites');
   };
 
-  openCamera = () => this.setState({ openCamera: true });
+  openCamera = () => {
+    // this.props.navigation.setParams({
+    //   header: null
+    // });
+    this.setState({ openCamera: true });
+  }
 
   takePicture = async () => {
     let { step } = this.state;
@@ -198,6 +220,7 @@ class AddSite extends Component {
             uri: photo.uri,
           }),
         }));
+
       } catch (error) {
         this.setState({ error: error.message });
       }
@@ -256,47 +279,48 @@ class AddSite extends Component {
             {this.renderBottomBar()}
           </Camera>
         ) : (
-          <Fragment>
-            <View style={{ paddingTop: '5%', flex: 1 }}>
-              <View>
-                <Text style={{ fontSize: 20 }}>Site Name</Text>
-              </View>
-              <View style={{ marginTop: 10 }}>
-                <Input
-                  value={this.state.siteName}
-                  text="What is the name of the site"
-                  placeHolderColor="#696F74"
-                  style={styles.inputStyle}
-                  onChangeTheText={siteName => this.setState({ siteName })}
-                />
-              </View>
-              <View style={styles.image}>
-                {newBox.map((v, index) => (
-                  <Box
-                    fn={() => this.openCamera()}
-                    key={index}
-                    empty={(v && v.uri) !== ''}
-                    imageSource={{ uri: v.uri }}
+            <Fragment>
+              <View style={{ paddingTop: '5%', flex: 1 }}>
+                <View>
+                  <Text style={{ fontSize: 20 }}>Site Name</Text>
+                </View>
+                <View style={{ marginTop: 10 }}>
+                  <Input
+                    value={this.state.siteName}
+                    text="What is the name of the site"
+                    placeHolderColor="#696F74"
+                    style={styles.inputStyle}
+                    onChangeTheText={siteName => this.setState({ siteName })}
                   />
-                ))}
-              </View>
-
-              <View>
-                <View style={styles.bottom}>
-                  <View>
-                    <Button
-                      text="SAVE"
-                      color={YELLOW}
-                      style={styles.button}
-                      fn={() => this.save()}
-                      loading={buttonLoading}
+                </View>
+                <View style={styles.image}>
+                  {newBox.map((v, index) => (
+                    <Box
+                      fn={() => this.openCamera()}
+                      key={index}
+                      text="Add new picture"
+                      empty={(v && v.uri) !== ''}
+                      imageSource={{ uri: v.uri }}
                     />
+                  ))}
+                </View>
+
+                <View>
+                  <View style={styles.bottom}>
+                    <View>
+                      <Button
+                        text="SAVE"
+                        color={YELLOW}
+                        style={styles.button}
+                        fn={() => this.save()}
+                        loading={buttonLoading}
+                      />
+                    </View>
                   </View>
                 </View>
               </View>
-            </View>
-          </Fragment>
-        )}
+            </Fragment>
+          )}
       </ScrollView>
     );
   }

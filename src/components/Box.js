@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const Box = ({ empty, siteName, imageSource, fn }) => (
+const Box = ({ empty, siteName, imageSource, fn, text }) => (
   <TouchableOpacity style={styles.container} onPress={empty ? console.log('') : fn}>
     {empty ? (
       <View>
@@ -46,15 +46,15 @@ const Box = ({ empty, siteName, imageSource, fn }) => (
         </ImageBackground>
       </View>
     ) : (
-      <View style={(styles.empty, { alignItems: 'center', borderColor: '#F2994A' })}>
-        <View style={{ justifyContent: 'center' }}>
-          <Image source={require('../../assets/plus.png')} style={{ tintColor: '#696f74' }} />
+        <View style={(styles.empty, { alignItems: 'center', borderColor: '#F2994A' })}>
+          <View style={{ justifyContent: 'center' }}>
+            <Image source={require('../../assets/plus.png')} style={{ tintColor: '#696f74' }} />
+          </View>
+          <View style={{ marginTop: 10 }}>
+            <Text> {text ? text : 'Add New Site'} </Text>
+          </View>
         </View>
-        <View style={{ marginTop: 10 }}>
-          <Text> Add New Site </Text>
-        </View>
-      </View>
-    )}
+      )}
   </TouchableOpacity>
 );
 
