@@ -4,6 +4,7 @@ import { Location, Permissions, Camera, Constants } from 'expo';
 import { connect } from 'react-redux';
 import { uploadSingleImage, addNewImage } from '../../actions/images';
 import { Ionicons } from '@expo/vector-icons'; // eslint-disable-line
+import { uploadToAWS } from '../utils/api';
 import Text from '../components/Text';
 import Input from '../components/Input';
 import Box from '../components/Box';
@@ -74,7 +75,7 @@ class AddSite extends Component {
 
     this.state = {
       author: JSON.parse(this.props && this.props.name && this.props.name.name).name,
-      isConnected: false,
+      isConnected: true,
       siteName: '',
       buttonLoading: false,
       step: 0,
@@ -167,9 +168,21 @@ class AddSite extends Component {
         d.latitude = latitude;
         return d;
       });
+
       if (isConnected === false) {
         this.failedToUpload(allImages, data);
       } else {
+        if (data.length > 1) {
+          const imagesArray =
+            data.map(async c => {
+              c.type = 'image/png';
+              return await uploadToAWS(c, null, credentials)
+            })
+          let images = await Promise.all(imagesArray);
+          images = images.map(c => c.postResponse.location);
+          data[0].images = images;
+        }
+
         this.props
           .uploadSingleImage(data[0], allImages, credentials)
           .then(async resp => {
@@ -182,12 +195,11 @@ class AddSite extends Component {
             }
           })
           .catch(async err => {
-            alert('err', err.message)
             await this.failedToUpload(allImages, data);
           });
       }
     } catch (err) {
-      alert(err.message);
+      console.log(err.message)
       this.setState({ buttonLoading: false, error: err.message });
     }
   };

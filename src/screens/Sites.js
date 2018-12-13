@@ -45,10 +45,10 @@ class Sites extends Component {
       const images = this.props.images && this.props.images.images;
       const credentials = this.props.credentials && this.props.credentials.credentials;
       if (isConnected) {
-        const imageQuery = images.map(async val =>
-          await this.props.uploadSingleImage(val, images, credentials),
-        );
-        await Promise.all(imageQuery);
+        // const imageQuery = images.map(val =>
+        //   this.props.uploadSingleImage(val, images, credentials)
+        // );
+        // await Promise.all(imageQuery);
       }
 
     } catch (err) {

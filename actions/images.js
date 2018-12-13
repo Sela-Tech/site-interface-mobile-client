@@ -62,22 +62,35 @@ filterImages = (small, big) => {
   // console.log('smal;', small)
   // console.log('filter', big.length)
   // big = big.filter(d => d.evidence_name !== small.evidence_name);
-  // console.log('gggdg', big.length)
+  bigj = big.find(d => d.evidence_name !== small.evidence_name);
+  console.log('gggdg', bigj)
   // // big.shift();
   return big;
 };
 
 export const uploadSingleImage = (data, images, credentials) => dispatch =>
   upload(data, credentials)
-    .then(resp => {
-      if (resp === false) {
-        addImage(images);
-        return dispatch(imageRollback(data));
+    .then((resp) => {
+
+      if (resp !== false) {
+        images = this.filterImages(data, images);
+        dispatch(addNewImage(images));
+        return resp.data;
+
       }
+
+      addImage(images);
+      return dispatch(imageRollback(data));
       // else {
-      images = this.filterImages(data, images);
-      dispatch(addNewImage(images));
-      return resp.data;
+
+      // if (resp === false) {
+      //   addImage(images);
+      //   return dispatch(imageRollback(data));
+      // }
+      // // else {
+      // images = this.filterImages(data, images);
+      // dispatch(addNewImage(images));
+      // return resp.data;
 
 
     })

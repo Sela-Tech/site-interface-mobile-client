@@ -7,9 +7,9 @@ import AuthLoadingScreen from './screens/AuthLoading';
 // import Credentials from './screens/Credentials';
 
 export const AppRootNavigator = createStackNavigator({
-  Sites: {
-    screen: Sites,
-  },
+  // Sites: {
+  //   screen: Sites,
+  // },
   AddSite: {
     screen: AddSite,
   },
