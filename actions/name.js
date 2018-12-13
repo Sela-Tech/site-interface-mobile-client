@@ -32,9 +32,7 @@ export const addNewName = data => dispatch => {
       dispatch(nameIsLoading(false));
       dispatch(nameLoadingError(err.message || 'ERROR'));
     });
-}
-
-
+};
 
 export const getName = () => dispatch =>
   AsyncStorage.getItem('name')

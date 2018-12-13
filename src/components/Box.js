@@ -45,15 +45,15 @@ const Box = ({ empty, siteName, imageSource, fn, text }) => (
         </ImageBackground>
       </View>
     ) : (
-        <View style={(styles.empty, { alignItems: 'center', borderColor: '#F2994A' })}>
-          <View style={{ justifyContent: 'center' }}>
-            <Image source={require('../../assets/plus.png')} style={{ tintColor: '#696f74' }} />
-          </View>
-          <View style={{ marginTop: 10 }}>
-            <Text> {text ? text : 'Add New Site'} </Text>
-          </View>
+      <View style={(styles.empty, { alignItems: 'center', borderColor: '#F2994A' })}>
+        <View style={{ justifyContent: 'center' }}>
+          <Image source={require('../../assets/plus.png')} style={{ tintColor: '#696f74' }} />
         </View>
-      )}
+        <View style={{ marginTop: 10 }}>
+          <Text> {text ? text : 'Add New Site'} </Text>
+        </View>
+      </View>
+    )}
   </TouchableOpacity>
 );
 

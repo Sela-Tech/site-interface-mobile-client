@@ -6,17 +6,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-})
+});
 
 const Image = ({ style, imageSource }) => (
-  <ImageBackground style={styles.container, style}
-source = { imageSource } >
-  <View>
-    <Button
-      text="Delete"
-    />
-  </View>
-  </ImageBackground >
+  <ImageBackground style={(styles.container, style)} source={imageSource}
+  >
+    <View>
+      <Button text="Delete" />
+    </View>
+  </ImageBackground>
 );
 
 export default Image;

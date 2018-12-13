@@ -29,7 +29,7 @@ export const imageLoadingError = error => ({
 
 export const addNewImage = data => dispatch => {
   dispatch(addImage(data));
-  data = JSON.stringify(data)
+  data = JSON.stringify(data);
   return AsyncStorage.setItem('images', data)
     .then(() => {
       dispatch(imageIsLoading(false));
@@ -38,8 +38,7 @@ export const addNewImage = data => dispatch => {
       dispatch(imageIsLoading(false));
       return dispatch(imageLoadingError(err.message || 'ERROR'));
     });
-}
-
+};
 
 export const getAllImages = () => dispatch =>
   AsyncStorage.getItem('images')
@@ -54,48 +53,23 @@ export const getAllImages = () => dispatch =>
     });
 
 filterImages = (small, big) => {
-  // console.log('small', small)
   // not working --- don't know why
-  // big = JSON.parse(big);
-  // small = JSON.parse(small)
-  // console.log('bigg', big)
-  // console.log('smal;', small)
-  // console.log('filter', big.length)
-  // big = big.filter(d => d.evidence_name !== small.evidence_name);
-  bigj = big.find(d => d.evidence_name !== small.evidence_name);
-  console.log('gggdg', bigj)
-  // // big.shift();
+  big.shift();
   return big;
 };
 
 export const uploadSingleImage = (data, images, credentials) => dispatch =>
   upload(data, credentials)
-    .then((resp) => {
-
+    .then(resp => {
       if (resp !== false) {
         images = this.filterImages(data, images);
         dispatch(addNewImage(images));
         return resp.data;
-
       }
-
       addImage(images);
       return dispatch(imageRollback(data));
-      // else {
-
-      // if (resp === false) {
-      //   addImage(images);
-      //   return dispatch(imageRollback(data));
-      // }
-      // // else {
-      // images = this.filterImages(data, images);
-      // dispatch(addNewImage(images));
-      // return resp.data;
-
-
     })
     .catch(err => {
-      console.log('err', err.message)
       dispatch(imageLoadingError(err.message || 'ERROR'));
       return false;
     });

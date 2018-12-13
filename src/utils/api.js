@@ -8,16 +8,12 @@ const axios = Axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  onUploadProgress: (progressEvent) => {
-    return Math.round((progressEvent.loaded * 100) / progressEvent.total);
-  },
+  onUploadProgress: progressEvent => Math.round((progressEvent.loaded * 100) / progressEvent.total),
 });
 
 // Add a request interceptor
 axios.interceptors.request.use(
-  (config) => {
-    return config
-  },
+  config => config,
   error => {
     // Do something with request error
     // Do something with response error
@@ -25,9 +21,6 @@ axios.interceptors.request.use(
     return Promise.reject(error);
   },
 );
-
-
-
 
 // Add a response interceptor
 axios.interceptors.response.use(
@@ -50,10 +43,8 @@ export const uploadToAWS = (file, data, cred) => {
   options.accessKey = cred.key;
   options.secretKey = cred.secret;
 
-
   return RNS3.put(file, options)
     .then(response => {
-
       if (response.status !== 201) {
         return false;
       }
@@ -102,4 +93,3 @@ export const getPassCredentials = async () => {
     return err;
   }
 };
-

@@ -45,12 +45,11 @@ class Sites extends Component {
       const images = this.props.images && this.props.images.images;
       const credentials = this.props.credentials && this.props.credentials.credentials;
       if (isConnected) {
-        // const imageQuery = images.map(val =>
-        //   this.props.uploadSingleImage(val, images, credentials)
-        // );
-        // await Promise.all(imageQuery);
+        const imageQuery = images.map(
+          async val => await this.props.uploadSingleImage(val, images, credentials),
+        );
+        await Promise.all(imageQuery);
       }
-
     } catch (err) {
       this.setState({ error: err.message, loading: false });
     }
@@ -76,26 +75,26 @@ class Sites extends Component {
         {loading === true ? (
           <Spinner />
         ) : (
+          <Fragment>
+            <Box fn={() => this.props.navigation.navigate('AddSite')} />
             <Fragment>
-              <Box fn={() => this.props.navigation.navigate('AddSite')} />
-              <Fragment>
-                {this.props.images && this.props.images.images === null ? null : this.props.images &&
-                  this.props.images.images.length === 0 ? null : (
-                    <Fragment>
-                      {images.map((v, index) => (
-                        <Box
-                          fn={() => this.openCamera()}
-                          key={index}
-                          empty={(v && v.uri) !== ''}
-                          imageSource={{ uri: v.uri }}
-                          siteName={v.siteName}
-                        />
-                      ))}
-                    </Fragment>
-                  )}
-              </Fragment>
+              {this.props.images && this.props.images.images === null ? null : this.props.images &&
+                this.props.images.images.length === 0 ? null : (
+                  <Fragment>
+                  {images.map((v, index) => (
+                      <Box
+                      fn={() => this.openCamera()}
+                      key={index}
+                      empty={(v && v.uri) !== ''}
+                      imageSource={{ uri: v.uri }}
+                      siteName={v.siteName}
+                    />
+                  ))}
+                </Fragment>
+              )}
             </Fragment>
-          )}
+          </Fragment>
+        )}
       </ScrollView>
     );
   }

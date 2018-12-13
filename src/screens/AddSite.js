@@ -62,13 +62,9 @@ const styles = StyleSheet.create({
 });
 
 class AddSite extends Component {
-
-
-  static navigationOptions = ({ navigation }) => {
-    return {
-      header: navigation.getParam('header', undefined)
-    }
-  }
+  static navigationOptions = ({ navigation }) => ({
+    header: navigation.getParam('header', undefined),
+  });
 
   constructor(props) {
     super(props);
@@ -90,9 +86,6 @@ class AddSite extends Component {
     };
   }
 
-
-
-
   async componentWillMount() {
     try {
       const { status } = await Permissions.askAsync(Permissions.CAMERA);
@@ -100,8 +93,6 @@ class AddSite extends Component {
     } catch (error) {
       this.setState({ error: error.message });
     }
-
-
   }
 
   componentDidMount() {
@@ -123,16 +114,13 @@ class AddSite extends Component {
   getLocationAsync = async () => {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status === 'granted') {
-      //https://github.com/expo/expo/issues/946
+      // https://github.com/expo/expo/issues/946
       return Location.getCurrentPositionAsync({
         enableHighAccuracy: true,
         timeout: 20000, // , maximumAge: 10000,
-      }).then(res => {
-        return res;
       })
-        .catch(err => {
-          return false
-        });
+        .then(res => res)
+        .catch(err => false);
     }
     return false;
   };
@@ -173,11 +161,10 @@ class AddSite extends Component {
         this.failedToUpload(allImages, data);
       } else {
         if (data.length > 1) {
-          const imagesArray =
-            data.map(async c => {
-              c.type = 'image/png';
-              return await uploadToAWS(c, null, credentials)
-            })
+          const imagesArray = data.map(async c => {
+            c.type = 'image/png';
+            return await uploadToAWS(c, null, credentials);
+          });
           let images = await Promise.all(imagesArray);
           images = images.map(c => c.postResponse.location);
           data[0].images = images;
@@ -199,7 +186,6 @@ class AddSite extends Component {
           });
       }
     } catch (err) {
-      console.log(err.message)
       this.setState({ buttonLoading: false, error: err.message });
     }
   };
@@ -216,8 +202,7 @@ class AddSite extends Component {
   openCamera = () => {
     this.setState({ openCamera: true });
     this.props.navigation.setParams({ header: null });
-  }
-
+  };
 
   takePicture = async () => {
     let { step } = this.state;
@@ -236,8 +221,7 @@ class AddSite extends Component {
             uri: photo.uri,
           }),
         }));
-        this.props.navigation.setParams({ header: undefined })
-
+        this.props.navigation.setParams({ header: undefined });
       } catch (error) {
         this.setState({ error: error.message });
       }
@@ -296,48 +280,48 @@ class AddSite extends Component {
             {this.renderBottomBar()}
           </Camera>
         ) : (
-            <Fragment>
-              <View style={{ paddingTop: '5%', flex: 1 }}>
-                <View>
-                  <Text style={{ fontSize: 20 }}>Site Name</Text>
-                </View>
-                <View style={{ marginTop: 10 }}>
-                  <Input
-                    value={this.state.siteName}
-                    text="What is the name of the site"
-                    placeHolderColor="#696F74"
-                    style={styles.inputStyle}
-                    onChangeTheText={siteName => this.setState({ siteName })}
+          <Fragment>
+            <View style={{ paddingTop: '5%', flex: 1 }}>
+              <View>
+                <Text style={{ fontSize: 20 }}>Site Name</Text>
+              </View>
+              <View style={{ marginTop: 10 }}>
+                <Input
+                  value={this.state.siteName}
+                  text="What is the name of the site"
+                  placeHolderColor="#696F74"
+                  style={styles.inputStyle}
+                  onChangeTheText={siteName => this.setState({ siteName })}
+                />
+              </View>
+              <View style={styles.image}>
+                {newBox.map((v, index) => (
+                  <Box
+                    fn={() => this.openCamera()}
+                    key={index}
+                    text="Add new picture"
+                    empty={(v && v.uri) !== ''}
+                    imageSource={{ uri: v.uri }}
                   />
-                </View>
-                <View style={styles.image}>
-                  {newBox.map((v, index) => (
-                    <Box
-                      fn={() => this.openCamera()}
-                      key={index}
-                      text="Add new picture"
-                      empty={(v && v.uri) !== ''}
-                      imageSource={{ uri: v.uri }}
-                    />
-                  ))}
-                </View>
+                ))}
+              </View>
 
-                <View>
-                  <View style={styles.bottom}>
-                    <View>
-                      <Button
-                        text="SAVE"
-                        color={YELLOW}
-                        style={styles.button}
-                        fn={() => this.save()}
-                        loading={buttonLoading}
-                      />
-                    </View>
+              <View>
+                <View style={styles.bottom}>
+                  <View>
+                    <Button
+                      text="SAVE"
+                      color={YELLOW}
+                      style={styles.button}
+                      fn={() => this.save()}
+                      loading={buttonLoading}
+                    />
                   </View>
                 </View>
               </View>
-            </Fragment>
-          )}
+            </View>
+          </Fragment>
+        )}
       </ScrollView>
     );
   }
@@ -359,5 +343,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(AddSite);
-
-

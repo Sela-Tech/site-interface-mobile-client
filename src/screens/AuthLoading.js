@@ -26,15 +26,15 @@ class AuthLoading extends React.Component {
       await this.props.getPassCredentials();
       if (this.props && this.props.credentials && this.props.credentials.credentials !== null) {
         return;
-      } else if (this.props && this.props.credentials && this.props.credentials.credentials === '') {
-        return await getAccessCredentials();
-      } else {
+      }
+      if (this.props && this.props.credentials && this.props.credentials.credentials === '') {
         return await getAccessCredentials();
       }
+      return await getAccessCredentials();
     } catch (err) {
       return await getAccessCredentials();
     }
-  }
+  };
 
   getKey = async () => {
     try {
@@ -50,8 +50,6 @@ class AuthLoading extends React.Component {
       this.props.navigation.navigate('AuthHome');
     }
   };
-
-
 
   render() {
     return (
