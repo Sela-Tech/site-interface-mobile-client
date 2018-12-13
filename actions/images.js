@@ -54,9 +54,16 @@ export const getAllImages = () => dispatch =>
     });
 
 filterImages = (small, big) => {
+  // console.log('small', small)
   // not working --- don't know why
-  // return big.filter(d => d.uri !== small.uri);
-  big.shift();
+  // big = JSON.parse(big);
+  // small = JSON.parse(small)
+  // console.log('bigg', big)
+  // console.log('smal;', small)
+  // console.log('filter', big.length)
+  // big = big.filter(d => d.evidence_name !== small.evidence_name);
+  // console.log('gggdg', big.length)
+  // // big.shift();
   return big;
 };
 
@@ -67,14 +74,15 @@ export const uploadSingleImage = (data, images, credentials) => dispatch =>
         addImage(images);
         return dispatch(imageRollback(data));
       }
-      else {
-        images = this.filterImages(data, images);
-        dispatch(addNewImage(images));
-        return resp.data;
-      }
+      // else {
+      images = this.filterImages(data, images);
+      dispatch(addNewImage(images));
+      return resp.data;
+
 
     })
     .catch(err => {
+      console.log('err', err.message)
       dispatch(imageLoadingError(err.message || 'ERROR'));
       return false;
     });

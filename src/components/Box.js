@@ -20,7 +20,6 @@ const styles = StyleSheet.create({
     marginTop: 15,
     borderStyle: 'dotted',
     borderWidth: 1,
-    // alignItems: 'center',
     borderColor: '#F2994A',
   },
   imageBack: {

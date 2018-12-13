@@ -41,15 +41,16 @@ class Sites extends Component {
 
     try {
       await this.props.getAllImages();
+      this.setState({ loading: false });
       const images = this.props.images && this.props.images.images;
       const credentials = this.props.credentials && this.props.credentials.credentials;
       if (isConnected) {
         const imageQuery = images.map(async val =>
-          this.props.uploadSingleImage(val, images, credentials),
+          await this.props.uploadSingleImage(val, images, credentials),
         );
         await Promise.all(imageQuery);
       }
-      this.setState({ loading: false });
+
     } catch (err) {
       this.setState({ error: err.message, loading: false });
     }

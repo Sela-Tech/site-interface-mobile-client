@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons'; // eslint-disable-line
 import Text from '../components/Text';
 import Input from '../components/Input';
 import Box from '../components/Box';
+import Image from '../components/Image';
 import Button from '../components/Button';
 import { YELLOW } from '../utils/constants';
 
@@ -64,16 +65,16 @@ class AddSite extends Component {
 
   static navigationOptions = ({ navigation }) => {
     return {
-      headerVisible: undefined,
-      header: undefined
+      header: navigation.getParam('header', undefined)
     }
   }
+
   constructor(props) {
     super(props);
 
     this.state = {
       author: JSON.parse(this.props && this.props.name && this.props.name.name).name,
-      isConnected: true,
+      isConnected: false,
       siteName: '',
       buttonLoading: false,
       step: 0,
@@ -144,14 +145,14 @@ class AddSite extends Component {
 
     if (siteName === '') {
       this.setState({ buttonLoading: false });
-      return alert('Enter site name');
+      return alert('Enter site name.');
     }
 
     try {
       const status = await this.getLocationAsync();
       if (status === false) {
         this.setState({ buttonLoading: false });
-        return alert('location access denied');
+        return alert('location access denied,turn on your Location.');
       }
 
       const { longitude, latitude } = status.coords;
@@ -202,10 +203,7 @@ class AddSite extends Component {
 
   openCamera = () => {
     this.setState({ openCamera: true });
-    return this.props.navigation.setParams({
-      header: null,
-      headerVisible: null,
-    })
+    this.props.navigation.setParams({ header: null });
   }
 
 
@@ -226,6 +224,7 @@ class AddSite extends Component {
             uri: photo.uri,
           }),
         }));
+        this.props.navigation.setParams({ header: undefined })
 
       } catch (error) {
         this.setState({ error: error.message });

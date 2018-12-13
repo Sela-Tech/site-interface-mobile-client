@@ -2,9 +2,9 @@ import { createStackNavigator, createAppContainer, createSwitchNavigator } from 
 import Home from './screens/Home';
 import Sites from './screens/Sites';
 import AddSite from './screens/AddSite';
-import Credentials from './screens/Credentials';
 import AuthLoadingScreen from './screens/AuthLoading';
-import CredLoadingScreen from './screens/CredLoading';
+// import CredLoadingScreen from './screens/CredLoading';
+// import Credentials from './screens/Credentials';
 
 export const AppRootNavigator = createStackNavigator({
   Sites: {
@@ -24,14 +24,7 @@ export const AppNavigator = createStackNavigator({
   },
 });
 
-export const CredNavigator = createStackNavigator({
-  Home: {
-    screen: Credentials,
-    navigationOptions: {
-      header: null,
-    },
-  },
-});
+
 
 export const HomeSwitchNavigator = createSwitchNavigator(
   {
@@ -44,15 +37,24 @@ export const HomeSwitchNavigator = createSwitchNavigator(
   },
 );
 
-export const MainSwitchNavigator = createSwitchNavigator(
-  {
-    AuthLoading: CredLoadingScreen,
-    App: HomeSwitchNavigator,
-    Auth: CredNavigator,
-  },
-  {
-    initialRouteName: 'AuthLoading',
-  },
-);
+// export const CredNavigator = createStackNavigator({
+//   Home: {
+//     screen: Credentials,
+//     navigationOptions: {
+//       header: null,
+//     },
+//   },
+// });
 
-export const RootNavigator = createAppContainer(MainSwitchNavigator);
+// export const MainSwitchNavigator = createSwitchNavigator(
+//   {
+//     AuthLoading: CredLoadingScreen,
+//     App: HomeSwitchNavigator,
+//     Auth: CredNavigator,
+//   },
+//   {
+//     initialRouteName: 'AuthLoading',
+//   },
+// );
+
+export const RootNavigator = createAppContainer(HomeSwitchNavigator);

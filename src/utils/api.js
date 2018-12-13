@@ -4,18 +4,20 @@ import { BASE_URL } from './constants';
 
 const axios = Axios.create({
   baseURL: BASE_URL,
-  // timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
+  },
+  onUploadProgress: (progressEvent) => {
+    return Math.round((progressEvent.loaded * 100) / progressEvent.total);
   },
 });
 
 // Add a request interceptor
 axios.interceptors.request.use(
-  config =>
-    // Do something before request is sent
-    // config,
-    config,
+  (config) => {
+    return config
+  },
   error => {
     // Do something with request error
     // Do something with response error
@@ -23,6 +25,9 @@ axios.interceptors.request.use(
     return Promise.reject(error);
   },
 );
+
+
+
 
 // Add a response interceptor
 axios.interceptors.response.use(
@@ -80,9 +85,9 @@ export const upload = (data, cred) => {
     .catch(err => false);
 };
 
-export const getPassCredentials = async data => {
+export const getPassCredentials = async () => {
   try {
-    const resp = await axios.post('/credentials', data);
+    const resp = await axios.get('/credentials');
     return resp;
   } catch (err) {
     return err;

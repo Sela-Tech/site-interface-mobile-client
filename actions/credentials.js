@@ -34,8 +34,8 @@ export const saveCredentials = data => dispatch => {
     });
 };
 
-export const getAccessCredentials = data => dispatch =>
-  getPassCredentials(data)
+export const getAccessCredentials = () => dispatch =>
+  getPassCredentials()
     .then(resp => {
       if (resp.status === 200) {
         dispatch(credentialsIsLoading(false));
