@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const Box = ({ empty, siteName, imageSource, fn, text }) => (
-  <TouchableOpacity style={styles.container} onPress={empty ? console.log('') : fn}>
+const Box = ({ empty, siteName, imageSource, fn, text, expandFn }) => (
+  <TouchableOpacity style={styles.container} onPress={fn}>
     {empty ? (
       <View>
         <ImageBackground style={styles.imageBack} source={imageSource}>
@@ -45,15 +45,15 @@ const Box = ({ empty, siteName, imageSource, fn, text }) => (
         </ImageBackground>
       </View>
     ) : (
-      <View style={(styles.empty, { alignItems: 'center', borderColor: '#F2994A' })}>
-        <View style={{ justifyContent: 'center' }}>
-          <Image source={require('../../assets/plus.png')} style={{ tintColor: '#696f74' }} />
+        <View style={(styles.empty, { alignItems: 'center', borderColor: '#F2994A' })}>
+          <View style={{ justifyContent: 'center' }}>
+            <Image source={require('../../assets/plus.png')} style={{ tintColor: '#696f74' }} />
+          </View>
+          <View style={{ marginTop: 10 }}>
+            <Text> {text ? text : 'Add New Site'} </Text>
+          </View>
         </View>
-        <View style={{ marginTop: 10 }}>
-          <Text> {text ? text : 'Add New Site'} </Text>
-        </View>
-      </View>
-    )}
+      )}
   </TouchableOpacity>
 );
 
@@ -62,13 +62,17 @@ Box.defaultProps = {
   siteName: '',
   imageSource: '',
   fn: null,
+  expandFn: null,
+  text: 'Add New Site',
 };
 
 Box.propTypes = {
   empty: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   siteName: PropTypes.string,
+  text: PropTypes.string,
   imageSource: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.object]),
   fn: PropTypes.func,
+  expandFn: PropTypes.func,
 };
 
 export default Box;

@@ -15,11 +15,6 @@ import { YELLOW } from '../utils/constants';
 const { height, width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    marginHorizontal: '5%',
-    justifyContent: 'space-around',
-  },
   inputStyle: {
     borderColor: '#696f74',
     height: height / 14,
@@ -77,12 +72,15 @@ class AddSite extends Component {
       step: 0,
       flash: 'off',
       autoFocus: 'on',
+      showImage: false,
+      fullScreen: true,
       newBox: [
         {
           uri: '',
           name: '',
         },
       ],
+      singleImageUri: '',
     };
   }
 
@@ -200,7 +198,7 @@ class AddSite extends Component {
   };
 
   openCamera = () => {
-    this.setState({ openCamera: true });
+    this.setState({ openCamera: true, fullScreen: false });
     this.props.navigation.setParams({ header: null });
   };
 
@@ -216,6 +214,7 @@ class AddSite extends Component {
 
         this.setState(prevState => ({
           step,
+          fullScreen: true,
           openCamera: false,
           newBox: prevState.newBox.concat({
             uri: photo.uri,
@@ -231,6 +230,37 @@ class AddSite extends Component {
       });
     }
   };
+
+  toggleSingleImage = () => {
+    this.setState(prevState => ({ showImage: !prevState.showImage, fullScreen: true }), () => {
+      if (this.state.fullScreen) {
+        this.props.navigation.setParams({ header: undefined });
+      }
+      else {
+        this.props.navigation.setParams({ header: null });
+      }
+    });
+  };
+
+  deleteImage = (uri) => {
+    this.toggleSingleImage();
+    this.setState(prevState => ({ newBox: prevState.newBox.filter(v => v.uri !== uri) }));
+  };
+
+  showImage = async (uri) => {
+    this.setState(prevState => ({
+      fullScreen: false,
+      singleImageUri: uri,
+      showImage: !prevState.showImage,
+    }), () => {
+      if (this.state.showImage) {
+        this.props.navigation.setParams({ header: null });
+      }
+      else {
+        this.props.navigation.setParams({ header: undefined });
+      }
+    });
+  }
 
   renderTopBar = () => <View style={styles.topBar} />;
 
@@ -263,65 +293,93 @@ class AddSite extends Component {
       autoFocus,
       newBox,
       isConnected,
+      fullScreen,
+      showImage,
+      singleImageUri,
     } = this.state;
     return (
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container}>
-        {openCamera ? (
-          <Camera
-            ref={ref => {
-              this.camera = ref;
-            }}
-            type={type}
-            flashMode={flash}
-            autoFocus={autoFocus}
-            style={styles.camera}
-          >
-            {this.renderTopBar()}
-            {this.renderBottomBar()}
-          </Camera>
-        ) : (
-          <Fragment>
-            <View style={{ paddingTop: '5%', flex: 1 }}>
-              <View>
-                <Text style={{ fontSize: 20 }}>Site Name</Text>
-              </View>
-              <View style={{ marginTop: 10 }}>
-                <Input
-                  value={this.state.siteName}
-                  text="What is the name of the site"
-                  placeHolderColor="#696F74"
-                  style={styles.inputStyle}
-                  onChangeTheText={siteName => this.setState({ siteName })}
+      <ScrollView style={{ flex: 1 }}
+        contentContainerStyle={
+          fullScreen ?
+            {
+              flexGrow: 1,
+              marginHorizontal: '5%',
+              justifyContent: 'space-around',
+            }
+            : { flexGrow: 1 }
+        }>
+        <Fragment>
+          {
+            showImage ?
+              (
+                <Image
+                  fn={() => this.toggleSingleImage()}
+                  filterFn={() => this.deleteImage(singleImageUri)}
+                  imageSource={{ uri: singleImageUri }}
                 />
-              </View>
-              <View style={styles.image}>
-                {newBox.map((v, index) => (
-                  <Box
-                    fn={() => this.openCamera()}
-                    key={index}
-                    text="Add new picture"
-                    empty={(v && v.uri) !== ''}
-                    imageSource={{ uri: v.uri }}
-                  />
-                ))}
-              </View>
+              ) :
+              (
+                openCamera ? (
+                  <Camera
+                    ref={
+                      ref => {
+                        this.camera = ref;
+                      }
+                    }
+                    type={type}
+                    flashMode={flash}
+                    autoFocus={autoFocus}
+                    style={styles.camera}
+                  >
+                    {this.renderTopBar()}
+                    {this.renderBottomBar()}
+                  </Camera>
+                ) : (
+                    <Fragment>
+                      <View style={{ paddingTop: '5%', flex: 1 }}>
+                        <View>
+                          <Text style={{ fontSize: 20 }}>Site Name</Text>
+                        </View>
+                        <View style={{ marginTop: 10 }}>
+                          <Input
+                            value={siteName}
+                            text="What is the name of the site"
+                            placeHolderColor="#696F74"
+                            style={styles.inputStyle}
+                            onChangeTheText={siteName => this.setState({ siteName })}
+                          />
+                        </View>
+                        <View style={styles.image}>
+                          {newBox.map((v, index) => (
+                            <Box
+                              fn={(v && v.uri) === '' ? () => this.openCamera() : () => this.showImage(v.uri)}
+                              key={index}
+                              text="Add new picture"
+                              empty={(v && v.uri) !== ''}
+                              imageSource={{ uri: v.uri }}
+                            />
+                          ))}
+                        </View>
 
-              <View>
-                <View style={styles.bottom}>
-                  <View>
-                    <Button
-                      text="SAVE"
-                      color={YELLOW}
-                      style={styles.button}
-                      fn={() => this.save()}
-                      loading={buttonLoading}
-                    />
-                  </View>
-                </View>
-              </View>
-            </View>
-          </Fragment>
-        )}
+                        <View>
+                          <View style={styles.bottom}>
+                            <View>
+                              <Button
+                                text="SAVE"
+                                color={YELLOW}
+                                style={styles.button}
+                                fn={() => this.save()}
+                                loading={buttonLoading}
+                              />
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    </Fragment>
+                  )
+              )
+          }
+        </Fragment>
       </ScrollView>
     );
   }
