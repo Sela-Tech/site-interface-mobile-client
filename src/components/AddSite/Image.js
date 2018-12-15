@@ -38,12 +38,12 @@ const Image = ({ fn, filterFn, imageSource }) => (
       </View>
     </View>
   </ImageBackground>
-
 );
+
 Image.defaultProps = {
   fn: null,
   imageSource: '',
-  filterFn: () => { },
+  filterFn: () => {},
 };
 Image.propTypes = {
   fn: PropTypes.func,

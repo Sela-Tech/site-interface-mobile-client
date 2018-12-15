@@ -9,8 +9,6 @@ import Image from '../components/AddSite/Image';
 // import OpenCamera from '../components/AddSite/OpenCamera';
 import MainContent from '../components/AddSite/MainContent';
 
-
-
 const styles = StyleSheet.create({
   camera: {
     flex: 1,
@@ -126,24 +124,25 @@ class AddSite extends Component {
 
       if (isConnected === false) {
         this.failedToUpload(allImages, data);
-      } else {
-        if (data.length > 1) {
-          const imagesArray = data.map(async c => {
-            c.type = 'image/png';
-            await uploadToAWS(c, null, credentials);
-            // const resp = await uploadToAWS(c, null, credentials);
-            // if (resp === false) {
-            //   return await this.failedToUpload(allImages, c);
-            // }
-            // return resp;
-          });
+      } else if (data.length > 1) {
+        const imagesArray = data.map(async c => {
+          c.type = 'image/png';
+          const resp = await uploadToAWS(c, null, credentials);
+          if (resp === false) {
+            await this.failedToUpload(allImages, [c]);
+            return false;
+          }
+          return resp;
+        });
 
-          let images = await Promise.all(imagesArray);
-          console.log('imahee', images)
-          images = images.map(c => c.postResponse.location);
-          data[0].images = images;
+        let images = await Promise.all(imagesArray);
+        images = images.filter(c => c.filter).map(c => c.postResponse.location);
+        if (images.length === 0) {
+          this.setState({ buttonLoading: false });
+          return this.props.navigation.navigate('Sites');
         }
 
+        data[0].images = images;
         this.props
           .uploadSingleImage(data[0], allImages, credentials)
           .then(async resp => {
@@ -252,13 +251,17 @@ class AddSite extends Component {
         <View style={{ flex: 0.4 }}>
           <TouchableOpacity onPress={() => this.takePicture()} style={{ alignSelf: 'center' }}>
             <Fragment>
-              <Ionicons name="ios-radio-button-on" size={70} color={!openCamera ? 'white' : 'red'} />
+              <Ionicons
+                name="ios-radio-button-on"
+                size={70}
+                color={!openCamera ? 'white' : 'red'}
+              />
             </Fragment>
           </TouchableOpacity>
         </View>
       </View>
-    )
-  }
+    );
+  };
 
   render() {
     const {
@@ -280,10 +283,10 @@ class AddSite extends Component {
         contentContainerStyle={
           fullScreen
             ? {
-              flexGrow: 1,
-              marginHorizontal: '5%',
-              justifyContent: 'space-around',
-            }
+                flexGrow: 1,
+                marginHorizontal: '5%',
+                justifyContent: 'space-around',
+              }
             : { flexGrow: 1 }
         }
       >
@@ -310,16 +313,16 @@ class AddSite extends Component {
               </Camera>
             </Fragment>
           ) : (
-                <MainContent
-                  siteName={siteName}
-                  newBox={newBox}
-                  updateText={siteName => this.setState({ siteName })}
-                  buttonLoading={buttonLoading}
-                  fn={() => this.save()}
-                  openCamera={() => this.openCamera()}
-                  showImage={this.showImage}
-                />
-              )}
+            <MainContent
+              siteName={siteName}
+              newBox={newBox}
+              updateText={siteName => this.setState({ siteName })}
+              buttonLoading={buttonLoading}
+              fn={() => this.save()}
+              openCamera={() => this.openCamera()}
+              showImage={this.showImage}
+            />
+          )}
         </Fragment>
       </ScrollView>
     );

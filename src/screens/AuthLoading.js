@@ -14,11 +14,7 @@ const styles = StyleSheet.create({
 class AuthLoading extends React.Component {
   async componentDidMount() {
     try {
-
-      await Promise.all([
-        this.getCredentials(true),
-        this.getKey(true)
-      ]);
+      await Promise.all([this.getCredentials(true), this.getKey(true)]);
     } catch (error) {
       this.setState({ error: error.message });
     }

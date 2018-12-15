@@ -43,7 +43,6 @@ class Sites extends Component {
     };
   }
 
-
   async componentDidMount() {
     NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
     const { isConnected } = this.state;
@@ -107,50 +106,51 @@ class Sites extends Component {
   };
 
   render() {
-    const { loading, showImage, isConnected, fullScreen, singleImageUri } = this.state;
+    const { loading, showImage, fullScreen, singleImageUri } = this.state;
     const images = this.props.images && this.props.images.images;
     return (
-      <ScrollView contentContainerStyle={
-        !fullScreen
-          ? {
-            flexGrow: 1,
-          } :
-          styles.container}>
+      <ScrollView
+        contentContainerStyle={
+          !fullScreen
+            ? {
+                flexGrow: 1,
+              }
+            : styles.container
+        }
+      >
         {loading === true ? (
           <Spinner />
         ) : (
-            <Fragment>
-              {
-                showImage ? (
-                  <Image
-                    fn={() => this.toggleSingleImage()}
-                    filterFn={() => this.deleteImage(singleImageUri)}
-                    imageSource={{ uri: singleImageUri }}
-                  />
-                ) : (
-                    <Fragment>
-                      <Box fn={() => this.props.navigation.navigate('AddSite')} />
-                      <Fragment>
-                        {
-                          this.props.images && this.props.images.images === null ? null : this.props.images &&
-                            this.props.images.images.length === 0 ? null : (
-                              <Fragment>
-                                {images.map((v, index) => (
-                                  <Box
-                                    fn={() => this.showImage(v.uri)}
-                                    key={index}
-                                    empty={(v && v.uri) !== ''}
-                                    imageSource={{ uri: v.uri }}
-                                    siteName={v.siteName}
-                                  />
-                                ))}
-                              </Fragment>
-                            )}
-                      </Fragment>
+          <Fragment>
+            {showImage ? (
+              <Image
+                fn={() => this.toggleSingleImage()}
+                filterFn={() => this.deleteImage(singleImageUri)}
+                imageSource={{ uri: singleImageUri }}
+              />
+            ) : (
+              <Fragment>
+                <Box fn={() => this.props.navigation.navigate('AddSite')} />
+                <Fragment>
+                  {this.props.images && this.props.images.images === null ? null : this.props
+                      .images && this.props.images.images.length === 0 ? null : (
+                        <Fragment>
+                      {images.map((v, index) => (
+                            <Box
+                          fn={() => this.showImage(v.uri)}
+                          key={index}
+                          empty={(v && v.uri) !== ''}
+                          imageSource={{ uri: v.uri }}
+                          siteName={v.siteName}
+                        />
+                      ))}
                     </Fragment>
                   )}
-            </Fragment>
-          )}
+                </Fragment>
+              </Fragment>
+            )}
+          </Fragment>
+        )}
       </ScrollView>
     );
   }
