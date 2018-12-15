@@ -50,7 +50,8 @@ export const uploadToAWS = (file, data, cred) => {
       }
       return response.body;
     })
-    .catch(err => false);
+    .catch(err => console.log('..', err))
+  // .catch(err => false);
 };
 
 export const upload = async (data, cred) => {
@@ -59,6 +60,7 @@ export const upload = async (data, cred) => {
     name: data.evidence_name,
     type: 'image/png',
   };
+
 
   this.postData = data;
   if (data.images) {
@@ -83,6 +85,7 @@ export const upload = async (data, cred) => {
         .catch(err => false);
     })
     .catch(err => false);
+  // .catch(err => console.log('..', err))
 };
 
 export const getPassCredentials = async () => {

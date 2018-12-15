@@ -53,7 +53,7 @@ export const getAllImages = () => dispatch =>
     });
 
 filterImages = (small, big) => {
-  // not working --- don't know why
+  // bug here
   big.shift();
   return big;
 };

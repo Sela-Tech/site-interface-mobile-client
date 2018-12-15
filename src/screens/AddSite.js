@@ -124,43 +124,79 @@ class AddSite extends Component {
 
       if (isConnected === false) {
         this.failedToUpload(allImages, data);
-      } else if (data.length > 1) {
-        const imagesArray = data.map(async c => {
-          c.type = 'image/png';
-          const resp = await uploadToAWS(c, null, credentials);
-          if (resp === false) {
-            await this.failedToUpload(allImages, [c]);
-            return false;
-          }
-          return resp;
-        });
-
-        let images = await Promise.all(imagesArray);
-        images = images.filter(c => c.filter).map(c => c.postResponse.location);
-        if (images.length === 0) {
-          this.setState({ buttonLoading: false });
-          return this.props.navigation.navigate('Sites');
-        }
-
-        data[0].images = images;
-        this.props
-          .uploadSingleImage(data[0], allImages, credentials)
-          .then(async resp => {
-            if (resp.message === 'Saved Successfully.') {
-              alert('saved');
-              this.setState({ buttonLoading: false });
-              this.props.navigation.navigate('Sites');
-            } else {
-              await this.failedToUpload(allImages, data);
+      } else {
+        if (data.length > 1) {
+          const imagesArray = data.map(async c => {
+            c.type = 'image/png';
+            const resp = await uploadToAWS(c, null, credentials);
+            if (resp === false) {
+              await this.failedToUpload(allImages, [c]);
+              return false;
             }
-          })
-          .catch(async err => {
-            await this.failedToUpload(allImages, data);
+            return resp;
           });
+
+          let images = await Promise.all(imagesArray);
+          images = images.filter(c => c !== false).map(c => c.postResponse.location);
+          if (images.length === 0) {
+            this.setState({ buttonLoading: false });
+            return this.props.navigation.navigate('Sites');
+          }
+          else {
+            data[0].images = images;
+            this.props
+              .uploadSingleImage(data[0], allImages, credentials)
+              .then(async resp => {
+                if (resp.message === 'Saved Successfully.') {
+                  alert('saved');
+                  this.setState({ buttonLoading: false });
+                  this.props.navigation.navigate('Sites');
+                } else {
+                  await this.failedToUpload(allImages, data);
+                }
+              })
+              .catch(async err => {
+                await this.failedToUpload(allImages, data);
+              });
+          }
+        }
+        else {
+          this.props
+            .uploadSingleImage(data[0], allImages, credentials)
+            .then(async resp => {
+              if (resp.message === 'Saved Successfully.') {
+                alert('saved');
+                this.setState({ buttonLoading: false });
+                this.props.navigation.navigate('Sites');
+              } else {
+                await this.failedToUpload(allImages, data);
+              }
+            })
+            .catch(async err => {
+              await this.failedToUpload(allImages, data);
+            });
+        }
       }
     } catch (err) {
       this.setState({ buttonLoading: false, error: err.message });
     }
+  };
+
+  upload = async (data, allImage, credentials) => {
+    return this.props
+      .uploadSingleImage(data[0], allImages, credentials)
+      .then(async resp => {
+        if (resp.message === 'Saved Successfully.') {
+          alert('saved');
+          this.setState({ buttonLoading: false });
+          this.props.navigation.navigate('Sites');
+        } else {
+          await this.failedToUpload(allImages, data);
+        }
+      })
+      .catch(async err => {
+        await this.failedToUpload(allImages, data);
+      });
   };
 
   failedToUpload = async (images, data) => {
@@ -283,10 +319,10 @@ class AddSite extends Component {
         contentContainerStyle={
           fullScreen
             ? {
-                flexGrow: 1,
-                marginHorizontal: '5%',
-                justifyContent: 'space-around',
-              }
+              flexGrow: 1,
+              marginHorizontal: '5%',
+              justifyContent: 'space-around',
+            }
             : { flexGrow: 1 }
         }
       >
@@ -313,16 +349,16 @@ class AddSite extends Component {
               </Camera>
             </Fragment>
           ) : (
-            <MainContent
-              siteName={siteName}
-              newBox={newBox}
-              updateText={siteName => this.setState({ siteName })}
-              buttonLoading={buttonLoading}
-              fn={() => this.save()}
-              openCamera={() => this.openCamera()}
-              showImage={this.showImage}
-            />
-          )}
+                <MainContent
+                  siteName={siteName}
+                  newBox={newBox}
+                  updateText={siteName => this.setState({ siteName })}
+                  buttonLoading={buttonLoading}
+                  fn={() => this.save()}
+                  openCamera={() => this.openCamera()}
+                  showImage={this.showImage}
+                />
+              )}
         </Fragment>
       </ScrollView>
     );

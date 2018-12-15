@@ -105,6 +105,15 @@ class Sites extends Component {
     );
   };
 
+  deleteImage = uri => {
+    this.toggleSingleImage();
+    let images = this.props.images && this.props.images.images;
+    images = images.filter(v => v.uri !== uri);
+    this.props.addNewImage(images);
+    // this.setState(prevState => ({ newBox: prevState.newBox.filter(v => v.uri !== uri) }));
+  };
+
+
   render() {
     const { loading, showImage, fullScreen, singleImageUri } = this.state;
     const images = this.props.images && this.props.images.images;
@@ -113,44 +122,44 @@ class Sites extends Component {
         contentContainerStyle={
           !fullScreen
             ? {
-                flexGrow: 1,
-              }
+              flexGrow: 1,
+            }
             : styles.container
         }
       >
         {loading === true ? (
           <Spinner />
         ) : (
-          <Fragment>
-            {showImage ? (
-              <Image
-                fn={() => this.toggleSingleImage()}
-                filterFn={() => this.deleteImage(singleImageUri)}
-                imageSource={{ uri: singleImageUri }}
-              />
-            ) : (
-              <Fragment>
-                <Box fn={() => this.props.navigation.navigate('AddSite')} />
-                <Fragment>
-                  {this.props.images && this.props.images.images === null ? null : this.props
-                      .images && this.props.images.images.length === 0 ? null : (
-                        <Fragment>
-                      {images.map((v, index) => (
-                            <Box
-                          fn={() => this.showImage(v.uri)}
-                          key={index}
-                          empty={(v && v.uri) !== ''}
-                          imageSource={{ uri: v.uri }}
-                          siteName={v.siteName}
-                        />
-                      ))}
+            <Fragment>
+              {showImage ? (
+                <Image
+                  fn={() => this.toggleSingleImage()}
+                  filterFn={() => this.deleteImage(singleImageUri)}
+                  imageSource={{ uri: singleImageUri }}
+                />
+              ) : (
+                  <Fragment>
+                    <Box fn={() => this.props.navigation.navigate('AddSite')} />
+                    <Fragment>
+                      {this.props.images && this.props.images.images === null ? null : this.props
+                        .images && this.props.images.images.length === 0 ? null : (
+                          <Fragment>
+                            {images.map((v, index) => (
+                              <Box
+                                fn={() => this.showImage(v.uri)}
+                                key={index}
+                                empty={(v && v.uri) !== ''}
+                                imageSource={{ uri: v.uri }}
+                                siteName={v.siteName}
+                              />
+                            ))}
+                          </Fragment>
+                        )}
                     </Fragment>
-                  )}
-                </Fragment>
-              </Fragment>
-            )}
-          </Fragment>
-        )}
+                  </Fragment>
+                )}
+            </Fragment>
+          )}
       </ScrollView>
     );
   }

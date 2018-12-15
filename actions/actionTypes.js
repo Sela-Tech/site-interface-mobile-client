@@ -5,6 +5,7 @@ export const HANDLE_IMAGE_ERROR = 'HANDLE_IMAGE_ERROR';
 export const IMAGE_ROLLBACK = 'IMAGE_ROLLBACK';
 
 export const GET_NAME = 'GET_NAME';
+export const DELETE_IMAGE = 'DELETE_NAME';
 export const ADD_NAME = 'SET_NAME';
 export const NAME_IS_LOADING = 'NAME_IS_LOADING';
 export const HANDLE_NAME_ERROR = 'HANDLE_IMAGE_ERROR';
