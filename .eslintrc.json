@@ -8,6 +8,7 @@
         "prettier"
     ],
     "rules": {
+        "no-nested-ternary": 0,
         "semi": [
             1,
             "always"

@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { StyleSheet, ScrollView, NetInfo } from 'react-native';
 import { connect } from 'react-redux';
 import { getAllImages, uploadSingleImage, addNewImage } from '../../actions/images';
+import Image from '../components/AddSite/Image';
 import Spinner from '../components/Spinner';
 import Box from '../components/Box';
 
@@ -17,7 +18,8 @@ const styles = StyleSheet.create({
 });
 
 class Sites extends Component {
-  static navigationOptions = {
+  static navigationOptions = ({ navigation }) => ({
+    header: navigation.getParam('header', undefined),
     title: 'SITES',
     headerTitleStyle: {
       textAlign: 'center',
@@ -28,12 +30,19 @@ class Sites extends Component {
       fontFamily: 'proximaNova',
       fontWeight: 'normal',
     },
-  };
+  });
 
-  state = {
-    loading: true,
-    isConnected: true,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: false,
+      isConnected: true,
+      showImage: false,
+      fullScreen: true,
+      singleImageUri: '',
+    };
+  }
+
 
   async componentDidMount() {
     NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
@@ -67,34 +76,81 @@ class Sites extends Component {
     }
   };
 
+  showImage = async uri => {
+    this.setState(
+      prevState => ({
+        fullScreen: false,
+        singleImageUri: uri,
+        showImage: !prevState.showImage,
+      }),
+      () => {
+        if (this.state.showImage) {
+          this.props.navigation.setParams({ header: null });
+        } else {
+          this.props.navigation.setParams({ header: undefined });
+        }
+      },
+    );
+  };
+
+  toggleSingleImage = () => {
+    this.setState(
+      prevState => ({ showImage: !prevState.showImage, fullScreen: true }),
+      () => {
+        if (this.state.fullScreen) {
+          this.props.navigation.setParams({ header: undefined });
+        } else {
+          this.props.navigation.setParams({ header: null });
+        }
+      },
+    );
+  };
+
   render() {
-    const { loading, isConnected } = this.state;
+    const { loading, showImage, isConnected, fullScreen, singleImageUri } = this.state;
     const images = this.props.images && this.props.images.images;
     return (
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={
+        !fullScreen
+          ? {
+            flexGrow: 1,
+          } :
+          styles.container}>
         {loading === true ? (
           <Spinner />
         ) : (
-          <Fragment>
-            <Box fn={() => this.props.navigation.navigate('AddSite')} />
             <Fragment>
-              {this.props.images && this.props.images.images === null ? null : this.props.images &&
-                this.props.images.images.length === 0 ? null : (
-                  <Fragment>
-                  {images.map((v, index) => (
-                      <Box
-                      fn={() => this.openCamera()}
-                      key={index}
-                      empty={(v && v.uri) !== ''}
-                      imageSource={{ uri: v.uri }}
-                      siteName={v.siteName}
-                    />
-                  ))}
-                </Fragment>
-              )}
+              {
+                showImage ? (
+                  <Image
+                    fn={() => this.toggleSingleImage()}
+                    filterFn={() => this.deleteImage(singleImageUri)}
+                    imageSource={{ uri: singleImageUri }}
+                  />
+                ) : (
+                    <Fragment>
+                      <Box fn={() => this.props.navigation.navigate('AddSite')} />
+                      <Fragment>
+                        {
+                          this.props.images && this.props.images.images === null ? null : this.props.images &&
+                            this.props.images.images.length === 0 ? null : (
+                              <Fragment>
+                                {images.map((v, index) => (
+                                  <Box
+                                    fn={() => this.showImage(v.uri)}
+                                    key={index}
+                                    empty={(v && v.uri) !== ''}
+                                    imageSource={{ uri: v.uri }}
+                                    siteName={v.siteName}
+                                  />
+                                ))}
+                              </Fragment>
+                            )}
+                      </Fragment>
+                    </Fragment>
+                  )}
             </Fragment>
-          </Fragment>
-        )}
+          )}
       </ScrollView>
     );
   }

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TouchableOpacity, Image, Dimensions, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
+import PropTypes from 'prop-types';
 
 const { height } = Dimensions.get('window');
 
@@ -28,14 +29,19 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ({ fn }) => (
+const BackButton = ({ fn }) => (
   <View style={styles.container}>
-    <TouchableOpacity
-      onPress={fn}>
-      <Image
-        style={styles.icon}
-        source={require('../../assets/BACK.png')}
-      />
+    <TouchableOpacity onPress={fn}>
+      <View style={styles.icon} source={require('../../assets/BACK.png')} />
     </TouchableOpacity>
   </View>
 );
+
+BackButton.defaultProps = {
+  fn: () => { },
+};
+
+BackButton.propTypes = {
+  fn: PropTypes.func,
+};
+export default BackButton;

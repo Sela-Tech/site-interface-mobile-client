@@ -40,6 +40,7 @@ export const getAccessCredentials = () => dispatch =>
       if (resp.status === 200) {
         dispatch(credentialsIsLoading(false));
         dispatch(saveCredentials(resp.data));
+        return true;
       }
       return resp.status;
     })

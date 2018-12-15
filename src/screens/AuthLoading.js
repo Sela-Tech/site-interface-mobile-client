@@ -14,8 +14,11 @@ const styles = StyleSheet.create({
 class AuthLoading extends React.Component {
   async componentDidMount() {
     try {
-      await this.getCredentials();
-      await this.getKey();
+
+      await Promise.all([
+        this.getCredentials(true),
+        this.getKey(true)
+      ]);
     } catch (error) {
       this.setState({ error: error.message });
     }
@@ -25,14 +28,14 @@ class AuthLoading extends React.Component {
     try {
       await this.props.getPassCredentials();
       if (this.props && this.props.credentials && this.props.credentials.credentials !== null) {
-        return;
+        return true;
       }
       if (this.props && this.props.credentials && this.props.credentials.credentials === '') {
-        return await getAccessCredentials();
+        await this.props.getAccessCredentials();
       }
-      return await getAccessCredentials();
+      await this.props.getAccessCredentials();
     } catch (err) {
-      return await getAccessCredentials();
+      await this.props.getAccessCredentials();
     }
   };
 

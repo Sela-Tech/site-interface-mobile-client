@@ -4,7 +4,7 @@ import { BASE_URL } from './constants';
 
 const axios = Axios.create({
   baseURL: BASE_URL,
-  timeout: 30000,
+  timeout: 80000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -42,15 +42,19 @@ const options = {
 export const uploadToAWS = (file, data, cred) => {
   options.accessKey = cred.key;
   options.secretKey = cred.secret;
+  console.log('cred', cred)
 
+  console.log('jjdjdjjddjdj', file)
   return RNS3.put(file, options)
     .then(response => {
+      console.log('reer', response);
       if (response.status !== 201) {
         return false;
       }
       return response.body;
     })
-    .catch(err => false);
+    .catch(err => console.log(err))
+  // .catch(err => false);
 };
 
 export const upload = async (data, cred) => {

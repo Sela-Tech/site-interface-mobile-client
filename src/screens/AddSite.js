@@ -1,33 +1,20 @@
 import React, { Component, Fragment } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, TouchableOpacity, NetInfo } from 'react-native';
-import { Location, Permissions, Camera, Constants } from 'expo';
+import { ScrollView, NetInfo, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Location, Permissions, Camera } from 'expo';
 import { connect } from 'react-redux';
-import { uploadSingleImage, addNewImage } from '../../actions/images';
 import { Ionicons } from '@expo/vector-icons'; // eslint-disable-line
+import { uploadSingleImage, addNewImage } from '../../actions/images';
 import { uploadToAWS } from '../utils/api';
-import Text from '../components/Text';
-import Input from '../components/Input';
-import Box from '../components/Box';
-import Image from '../components/Image';
-import Button from '../components/Button';
-import { YELLOW } from '../utils/constants';
+import Image from '../components/AddSite/Image';
+// import OpenCamera from '../components/AddSite/OpenCamera';
+import MainContent from '../components/AddSite/MainContent';
 
-const { height, width } = Dimensions.get('window');
+
 
 const styles = StyleSheet.create({
-  inputStyle: {
-    borderColor: '#696f74',
-    height: height / 14,
-    width: width / 1.12,
-  },
-  image: {
-    flexGrow: 4,
-    flexWrap: 'wrap',
-    flexDirection: 'row',
+  camera: {
+    flex: 1,
     justifyContent: 'space-between',
-  },
-  button: {
-    width: width / 1.1,
   },
   bottomBar: {
     paddingBottom: 5,
@@ -37,25 +24,7 @@ const styles = StyleSheet.create({
     flex: 0.12,
     flexDirection: 'row',
   },
-  topBar: {
-    flex: 0.2,
-    backgroundColor: 'transparent',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: Constants.statusBarHeight / 2,
-  },
-  camera: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  bottom: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: '5%',
-  },
 });
-
 class AddSite extends Component {
   static navigationOptions = ({ navigation }) => ({
     header: navigation.getParam('header', undefined),
@@ -80,7 +49,7 @@ class AddSite extends Component {
           name: '',
         },
       ],
-      singleImageUri: '',
+      // singleImageUri: '',
     };
   }
 
@@ -161,9 +130,16 @@ class AddSite extends Component {
         if (data.length > 1) {
           const imagesArray = data.map(async c => {
             c.type = 'image/png';
-            return await uploadToAWS(c, null, credentials);
+            await uploadToAWS(c, null, credentials);
+            // const resp = await uploadToAWS(c, null, credentials);
+            // if (resp === false) {
+            //   return await this.failedToUpload(allImages, c);
+            // }
+            // return resp;
           });
+
           let images = await Promise.all(imagesArray);
+          console.log('imahee', images)
           images = images.map(c => c.postResponse.location);
           data[0].images = images;
         }
@@ -216,6 +192,7 @@ class AddSite extends Component {
           step,
           fullScreen: true,
           openCamera: false,
+          showImage: false,
           newBox: prevState.newBox.concat({
             uri: photo.uri,
           }),
@@ -232,35 +209,39 @@ class AddSite extends Component {
   };
 
   toggleSingleImage = () => {
-    this.setState(prevState => ({ showImage: !prevState.showImage, fullScreen: true }), () => {
-      if (this.state.fullScreen) {
-        this.props.navigation.setParams({ header: undefined });
-      }
-      else {
-        this.props.navigation.setParams({ header: null });
-      }
-    });
+    this.setState(
+      prevState => ({ showImage: !prevState.showImage, fullScreen: true }),
+      () => {
+        if (this.state.fullScreen) {
+          this.props.navigation.setParams({ header: undefined });
+        } else {
+          this.props.navigation.setParams({ header: null });
+        }
+      },
+    );
   };
 
-  deleteImage = (uri) => {
+  deleteImage = uri => {
     this.toggleSingleImage();
     this.setState(prevState => ({ newBox: prevState.newBox.filter(v => v.uri !== uri) }));
   };
 
-  showImage = async (uri) => {
-    this.setState(prevState => ({
-      fullScreen: false,
-      singleImageUri: uri,
-      showImage: !prevState.showImage,
-    }), () => {
-      if (this.state.showImage) {
-        this.props.navigation.setParams({ header: null });
-      }
-      else {
-        this.props.navigation.setParams({ header: undefined });
-      }
-    });
-  }
+  showImage = uri => {
+    this.setState(
+      prevState => ({
+        fullScreen: false,
+        singleImageUri: uri,
+        showImage: !prevState.showImage,
+      }),
+      () => {
+        if (this.state.showImage) {
+          this.props.navigation.setParams({ header: null });
+        } else {
+          this.props.navigation.setParams({ header: undefined });
+        }
+      },
+    );
+  };
 
   renderTopBar = () => <View style={styles.topBar} />;
 
@@ -271,17 +252,13 @@ class AddSite extends Component {
         <View style={{ flex: 0.4 }}>
           <TouchableOpacity onPress={() => this.takePicture()} style={{ alignSelf: 'center' }}>
             <Fragment>
-              <Ionicons
-                name="ios-radio-button-on"
-                size={70}
-                color={!openCamera ? 'white' : 'red'}
-              />
+              <Ionicons name="ios-radio-button-on" size={70} color={!openCamera ? 'white' : 'red'} />
             </Fragment>
           </TouchableOpacity>
         </View>
       </View>
-    );
-  };
+    )
+  }
 
   render() {
     const {
@@ -292,93 +269,57 @@ class AddSite extends Component {
       flash,
       autoFocus,
       newBox,
-      isConnected,
       fullScreen,
       showImage,
       singleImageUri,
+      cameraRef,
     } = this.state;
     return (
-      <ScrollView style={{ flex: 1 }}
+      <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={
-          fullScreen ?
-            {
+          fullScreen
+            ? {
               flexGrow: 1,
               marginHorizontal: '5%',
               justifyContent: 'space-around',
             }
             : { flexGrow: 1 }
-        }>
+        }
+      >
         <Fragment>
-          {
-            showImage ?
-              (
-                <Image
-                  fn={() => this.toggleSingleImage()}
-                  filterFn={() => this.deleteImage(singleImageUri)}
-                  imageSource={{ uri: singleImageUri }}
+          {showImage ? (
+            <Image
+              fn={() => this.toggleSingleImage()}
+              filterFn={() => this.deleteImage(singleImageUri)}
+              imageSource={{ uri: singleImageUri }}
+            />
+          ) : openCamera ? (
+            <Fragment>
+              <Camera
+                ref={ref => {
+                  this.camera = ref;
+                }}
+                type={type}
+                flashMode={flash}
+                autoFocus={autoFocus}
+                style={styles.camera}
+              >
+                {this.renderTopBar()}
+                {this.renderBottomBar()}
+              </Camera>
+            </Fragment>
+          ) : (
+                <MainContent
+                  siteName={siteName}
+                  newBox={newBox}
+                  updateText={siteName => this.setState({ siteName })}
+                  buttonLoading={buttonLoading}
+                  fn={() => this.save()}
+                  openCamera={() => this.openCamera()}
+                  showImage={this.showImage}
                 />
-              ) :
-              (
-                openCamera ? (
-                  <Camera
-                    ref={
-                      ref => {
-                        this.camera = ref;
-                      }
-                    }
-                    type={type}
-                    flashMode={flash}
-                    autoFocus={autoFocus}
-                    style={styles.camera}
-                  >
-                    {this.renderTopBar()}
-                    {this.renderBottomBar()}
-                  </Camera>
-                ) : (
-                    <Fragment>
-                      <View style={{ paddingTop: '5%', flex: 1 }}>
-                        <View>
-                          <Text style={{ fontSize: 20 }}>Site Name</Text>
-                        </View>
-                        <View style={{ marginTop: 10 }}>
-                          <Input
-                            value={siteName}
-                            text="What is the name of the site"
-                            placeHolderColor="#696F74"
-                            style={styles.inputStyle}
-                            onChangeTheText={siteName => this.setState({ siteName })}
-                          />
-                        </View>
-                        <View style={styles.image}>
-                          {newBox.map((v, index) => (
-                            <Box
-                              fn={(v && v.uri) === '' ? () => this.openCamera() : () => this.showImage(v.uri)}
-                              key={index}
-                              text="Add new picture"
-                              empty={(v && v.uri) !== ''}
-                              imageSource={{ uri: v.uri }}
-                            />
-                          ))}
-                        </View>
-
-                        <View>
-                          <View style={styles.bottom}>
-                            <View>
-                              <Button
-                                text="SAVE"
-                                color={YELLOW}
-                                style={styles.button}
-                                fn={() => this.save()}
-                                loading={buttonLoading}
-                              />
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                    </Fragment>
-                  )
-              )
-          }
+              )}
         </Fragment>
       </ScrollView>
     );
