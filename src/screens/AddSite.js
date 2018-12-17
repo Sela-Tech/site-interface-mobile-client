@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, NetInfo, StyleSheet, View, TouchableOpacity } from 'react-native';
-import { Location, Permissions, Camera } from 'expo';
+import { Location, Permissions, Camera, IntentLauncherAndroid } from 'expo';
 import { connect } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons'; // eslint-disable-line
 import { uploadSingleImage, addNewImage } from '../../actions/images';
 import { uploadToAWS } from '../utils/api';
 import Image from '../components/AddSite/Image';
+import { isAndroid } from '../utils/helpers';
 // import OpenCamera from '../components/AddSite/OpenCamera';
 import MainContent from '../components/AddSite/MainContent';
 
@@ -55,6 +56,14 @@ class AddSite extends Component {
     try {
       const { status } = await Permissions.askAsync(Permissions.CAMERA);
       this.setState({ permissionsGranted: status === 'granted' });
+      if (status !== 'granted') {
+        // this.setState({
+        console.log('camera not on')
+        // });
+      }
+      else {
+        console.log('access');
+      }
     } catch (error) {
       this.setState({ error: error.message });
     }
@@ -77,6 +86,25 @@ class AddSite extends Component {
   };
 
   getLocationAsync = async () => {
+    try {
+      const locationStatus = await Location.getProviderStatusAsync();
+      const { gpsAvailable, locationServicesEnabled } = locationStatus;
+      if ((gpsAvailable === false) || (locationServicesEnabled === false)) {
+        if (isAndroid) {
+          await IntentLauncherAndroid.startActivityAsync(
+            IntentLauncherAndroid.ACTION_LOCATION_SOURCE_SETTINGS
+          );
+          return await this.locationPermission();
+        }
+      }
+      return await this.locationPermission();
+    }
+    catch (err) {
+      return false;
+    }
+  };
+
+  locationPermission = async () => {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status === 'granted') {
       // https://github.com/expo/expo/issues/946
@@ -106,7 +134,7 @@ class AddSite extends Component {
       const status = await this.getLocationAsync();
       if (status === false) {
         this.setState({ buttonLoading: false });
-        return alert('location access denied,turn on your Location.');
+        return alert('location access denied,Please switch on your Location.');
       }
 
       const { longitude, latitude } = status.coords;

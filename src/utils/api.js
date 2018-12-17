@@ -1,3 +1,5 @@
+/*eslint no-console: ["error", { allow: ["log"] }] */
+
 import Axios from 'axios';
 import { RNS3 } from 'react-native-aws3';
 import { BASE_URL } from './constants';
