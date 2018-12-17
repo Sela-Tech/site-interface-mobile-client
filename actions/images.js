@@ -54,6 +54,7 @@ export const getAllImages = () => dispatch =>
 
 filterImages = (small, big) => {
   // bug here
+  // big.filter(c => c.uri !== small.uri); expected operation
   big.shift();
   return big;
 };
