@@ -1,12 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, NetInfo, StyleSheet, View } from 'react-native';
+import { ScrollView, NetInfo, View } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import { connect } from 'react-redux';
 import { uploadSingleImage, addNewImage } from '../../actions/images';
 import { uploadToAWS } from '../utils/api';
 import Image from '../components/AddSite/Image';
 import MainContent from '../components/AddSite/MainContent';
-
 
 const options = {
   title: 'Upload Avatar',
@@ -18,20 +17,6 @@ const options = {
 };
 
 
-const styles = StyleSheet.create({
-  camera: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  bottomBar: {
-    paddingBottom: 5,
-    backgroundColor: 'transparent',
-    alignSelf: 'center',
-    justifyContent: 'center',
-    flex: 0.12,
-    flexDirection: 'row',
-  },
-});
 class AddSite extends Component {
   static navigationOptions = ({ navigation }) => ({
     header: navigation.getParam('header', undefined),
@@ -62,7 +47,7 @@ class AddSite extends Component {
 
   async componentWillMount() {
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      position => {
         this.setState({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
@@ -115,66 +100,62 @@ class AddSite extends Component {
 
       if (isConnected === false) {
         this.failedToUpload(allImages, data);
-      } else {
-        if (data.length > 1) {
-          const imagesArray = data.map(async c => {
-            c.type = 'image/png';
-            const resp = await uploadToAWS(c, null, credentials);
-            if (resp === false) {
-              await this.failedToUpload(allImages, [c]);
-              return false;
-            }
-            return resp;
-          });
+      } else if (data.length > 1) {
+        const imagesArray = data.map(async c => {
+          c.type = 'image/png';
+          const resp = await uploadToAWS(c, null, credentials);
+          if (resp === false) {
+            await this.failedToUpload(allImages, [c]);
+            return false;
+          }
+          return resp;
+        });
 
-          let images = await Promise.all(imagesArray);
-          images = images.filter(c => c !== false).map(c => c.postResponse.location);
-          if (images.length === 0) {
-            this.setState({ buttonLoading: false });
-            return this.props.navigation.navigate('Sites');
-          }
-          else {
-            data[0].images = images;
-            this.props
-              .uploadSingleImage(data[0], allImages, credentials)
-              .then(async resp => {
-                if (resp.message === 'Saved Successfully.') {
-                  alert('saved');
-                  this.setState({ buttonLoading: false });
-                  this.props.navigation.navigate('Sites');
-                } else {
-                  await this.failedToUpload(allImages, data);
-                }
-              })
-              .catch(async err => {
-                await this.failedToUpload(allImages, data);
-              });
-          }
+        let images = await Promise.all(imagesArray);
+        images = images.filter(c => c !== false).map(c => c.postResponse.location);
+        if (images.length === 0) {
+          this.setState({ buttonLoading: false });
+          return this.props.navigation.navigate('Sites');
         }
-        else {
-          this.props
-            .uploadSingleImage(data[0], allImages, credentials)
-            .then(async resp => {
-              if (resp.message === 'Saved Successfully.') {
-                alert('saved');
-                this.setState({ buttonLoading: false });
-                this.props.navigation.navigate('Sites');
-              } else {
-                await this.failedToUpload(allImages, data);
-              }
-            })
-            .catch(async err => {
+
+        data[0].images = images;
+        this.props
+          .uploadSingleImage(data[0], allImages, credentials)
+          .then(async resp => {
+            if (resp.message === 'Saved Successfully.') {
+              alert('saved');
+              this.setState({ buttonLoading: false });
+              this.props.navigation.navigate('Sites');
+            } else {
               await this.failedToUpload(allImages, data);
-            });
-        }
+            }
+          })
+          .catch(async err => {
+            await this.failedToUpload(allImages, data);
+          });
+      } else {
+        this.props
+          .uploadSingleImage(data[0], allImages, credentials)
+          .then(async resp => {
+            if (resp.message === 'Saved Successfully.') {
+              alert('saved');
+              this.setState({ buttonLoading: false });
+              this.props.navigation.navigate('Sites');
+            } else {
+              await this.failedToUpload(allImages, data);
+            }
+          })
+          .catch(async err => {
+            await this.failedToUpload(allImages, data);
+          });
       }
     } catch (err) {
       this.setState({ buttonLoading: false, error: err.message });
     }
   };
 
-  upload = async (data, allImage, credentials) => {
-    return this.props
+  upload = async (data, allImage, credentials) =>
+    this.props
       .uploadSingleImage(data[0], allImages, credentials)
       .then(async resp => {
         if (resp.message === 'Saved Successfully.') {
@@ -188,7 +169,6 @@ class AddSite extends Component {
       .catch(async err => {
         await this.failedToUpload(allImages, data);
       });
-  };
 
   failedToUpload = async (images, data) => {
     if (images === null) {
@@ -210,8 +190,7 @@ class AddSite extends Component {
     step += 1;
 
     // Launch Camera:
-    ImagePicker.launchCamera(options, (response) => {
-      console.log('the- reps', response.uri);
+    ImagePicker.launchCamera(options, response => {
       this.setState(prevState => ({
         step,
         fullScreen: true,
@@ -222,7 +201,6 @@ class AddSite extends Component {
         }),
       }));
       this.props.navigation.setParams({ header: undefined });
-      // Same code as in above section!
     });
   };
 
@@ -266,14 +244,10 @@ class AddSite extends Component {
       buttonLoading,
       siteName,
       openCamera,
-      type,
-      flash,
-      autoFocus,
       newBox,
       fullScreen,
       showImage,
       singleImageUri,
-      cameraRef,
     } = this.state;
     return (
       <ScrollView
