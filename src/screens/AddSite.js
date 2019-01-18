@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, NetInfo, View } from 'react-native';
+import { ScrollView, NetInfo, View, PermissionsAndroid } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import { connect } from 'react-redux';
 import { uploadSingleImage, addNewImage } from '../../actions/images';
@@ -7,14 +7,26 @@ import { uploadToAWS } from '../utils/api';
 import Image from '../components/AddSite/Image';
 import MainContent from '../components/AddSite/MainContent';
 
+
 const options = {
-  title: 'Upload Avatar',
-  customButtons: [{ name: 'sela', title: 'Take Photo' }],
+  title: 'Take Picture',
+  customButtons: [{ name: 'sela', title: 'Choose Photo ' }],
   storageOptions: {
     skipBackup: true,
     path: 'images',
   },
 };
+
+
+// var options = { quality: 0.5 };
+// const options = {
+//   title: 'Upload Avatar',
+//   customButtons: [{ name: 'sela', title: 'Take Photo' }],
+//   storageOptions: {
+//     skipBackup: true,
+//     path: 'images',
+//   },
+// };
 
 
 class AddSite extends Component {
@@ -45,7 +57,9 @@ class AddSite extends Component {
     };
   }
 
-  async componentWillMount() {
+  componentWillMount() {
+
+    console.log('i am herer');
     navigator.geolocation.getCurrentPosition(
       position => {
         this.setState({
@@ -59,7 +73,9 @@ class AddSite extends Component {
     );
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+
+
     NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
   }
 
@@ -179,22 +195,15 @@ class AddSite extends Component {
     return this.props.navigation.navigate('Sites');
   };
 
-  openCamera = () => {
-    this.setState({ openCamera: true, fullScreen: false });
-    this.props.navigation.setParams({ header: null });
-    this.takePicture();
-  };
-
   takePicture = async () => {
     let { step } = this.state;
     step += 1;
-
     // Launch Camera:
     ImagePicker.launchCamera(options, response => {
       this.setState(prevState => ({
         step,
-        fullScreen: true,
-        openCamera: false,
+        // fullScreen: true,
+        // openCamera: false,
         showImage: false,
         newBox: prevState.newBox.concat({
           uri: response.uri,
@@ -269,21 +278,18 @@ class AddSite extends Component {
               filterFn={() => this.deleteImage(singleImageUri)}
               imageSource={{ uri: singleImageUri }}
             />
-          ) : openCamera ? (
-            <Fragment>
-              <View />
-            </Fragment>
-          ) : (
-                <MainContent
-                  siteName={siteName}
-                  newBox={newBox}
-                  updateText={siteName => this.setState({ siteName })}
-                  buttonLoading={buttonLoading}
-                  fn={() => this.save()}
-                  openCamera={() => this.openCamera()}
-                  showImage={this.showImage}
-                />
-              )}
+          ) :
+            (
+              <MainContent
+                siteName={siteName}
+                newBox={newBox}
+                updateText={siteName => this.setState({ siteName })}
+                buttonLoading={buttonLoading}
+                fn={() => this.save()}
+                openCamera={() => this.takePicture()}
+                showImage={this.showImage}
+              />
+            )}
         </Fragment>
       </ScrollView>
     );
