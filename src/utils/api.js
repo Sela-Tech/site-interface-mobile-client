@@ -65,12 +65,13 @@ export const upload = async (data, cred) => {
 
   this.postData = data;
   if (data.images) {
-    try {
-      const resp = await axios.post('/', data);
-      return resp;
-    } catch (err) {
-      return false;
-    }
+    console.log('the data =fjf', data);
+    // try {
+    //   const resp = await axios.post('/', data);
+    //   return resp;
+    // } catch (err) {
+    //   return false;
+    // }
   }
   return uploadToAWS(file, data, cred)
     .then(awsReply => {
@@ -79,7 +80,7 @@ export const upload = async (data, cred) => {
       }
       data = this.postData;
       data.evidence_name = awsReply.postResponse.location;
-
+      console.log('normal --data', data);
       return axios
         .post('/', data)
         .then(resp => resp)

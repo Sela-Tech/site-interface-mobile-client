@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, NetInfo, View, PermissionsAndroid } from 'react-native';
+import { ScrollView, NetInfo, AppState, Linking } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import { connect } from 'react-redux';
 import { uploadSingleImage, addNewImage } from '../../actions/images';
 import { uploadToAWS } from '../utils/api';
+import { isAndroid } from '../utils/helpers';
 import Image from '../components/AddSite/Image';
 import MainContent from '../components/AddSite/MainContent';
 
@@ -38,6 +39,7 @@ class AddSite extends Component {
     super(props);
 
     this.state = {
+      appState: AppState.currentState,
       author: JSON.parse(this.props && this.props.name && this.props.name.name).name,
       isConnected: true,
       siteName: '',
@@ -57,10 +59,18 @@ class AddSite extends Component {
     };
   }
 
-  componentWillMount() {
+  async componentWillMount() {
+    try {
+      await this.getLocation();
+    }
+    catch (err) {
+      this.setState({ message: err.message });
+    }
 
-    console.log('i am herer');
-    navigator.geolocation.getCurrentPosition(
+  }
+
+  getLocation = () => {
+    return navigator.geolocation.getCurrentPosition(
       position => {
         this.setState({
           latitude: position.coords.latitude,
@@ -71,17 +81,27 @@ class AddSite extends Component {
       error => this.setState({ error: error.message }),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
-  }
+  };
 
   async componentDidMount() {
-
-
     NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
+    AppState.addEventListener('change', this.handleAppStateChange);
   }
 
   componentWillUnmount() {
     NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
   }
+  handleAppStateChange = async nextAppState => {
+    if (
+      this.state.appState.match(/inactive|background/) &&
+      nextAppState === 'active'
+    ) {
+      await this.getLocation();
+      // console.log('App has come to the foreground!');
+    }
+    this.setState({ appState: nextAppState });
+  };
+
 
   handleConnectivityChange = isConnected => {
     if (isConnected) {
@@ -90,6 +110,15 @@ class AddSite extends Component {
       this.setState({ isConnected });
     }
   };
+
+  openSettings = () => {
+    if (isAndroid) {
+
+    }
+    else {
+      Linking.openURL('app-settings:');
+    }
+  }
 
   save = async () => {
     this.setState({ buttonLoading: true });
@@ -119,6 +148,7 @@ class AddSite extends Component {
       } else if (data.length > 1) {
         const imagesArray = data.map(async c => {
           c.type = 'image/png';
+          console.log('val of c', c);
           const resp = await uploadToAWS(c, null, credentials);
           if (resp === false) {
             await this.failedToUpload(allImages, [c]);
@@ -149,7 +179,8 @@ class AddSite extends Component {
           .catch(async err => {
             await this.failedToUpload(allImages, data);
           });
-      } else {
+      }
+      else {
         this.props
           .uploadSingleImage(data[0], allImages, credentials)
           .then(async resp => {
