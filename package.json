@@ -7,7 +7,9 @@
     "test": "jest",
     "lint": "eslint",
     "eslint:fix": "eslint --fix . --ext .js  ",
-    "lint:js": "npm run lint:eslint -- . "
+    "lint:js": "npm run lint:eslint -- . ",
+    "release": "react-native run-android --variant=release",
+    "android": "react-native run-android"
   },
   "dependencies": {
     "axios": "^0.18.0",
