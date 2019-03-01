@@ -113,7 +113,6 @@ class Sites extends Component {
     // this.setState(prevState => ({ newBox: prevState.newBox.filter(v => v.uri !== uri) }));
   };
 
-
   render() {
     const { loading, showImage, fullScreen, singleImageUri } = this.state;
     const images = this.props.images && this.props.images.images;

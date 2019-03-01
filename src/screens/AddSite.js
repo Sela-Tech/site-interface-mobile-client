@@ -1,29 +1,35 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, NetInfo, StyleSheet, View, TouchableOpacity } from 'react-native';
-import { Location, Permissions, Camera, IntentLauncherAndroid } from 'expo';
+import { ScrollView, NetInfo, AppState, Linking } from 'react-native';
+import ImagePicker from 'react-native-image-picker';
 import { connect } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons'; // eslint-disable-line
 import { uploadSingleImage, addNewImage } from '../../actions/images';
 import { uploadToAWS } from '../utils/api';
-import Image from '../components/AddSite/Image';
 import { isAndroid } from '../utils/helpers';
-// import OpenCamera from '../components/AddSite/OpenCamera';
+import Image from '../components/AddSite/Image';
 import MainContent from '../components/AddSite/MainContent';
 
-const styles = StyleSheet.create({
-  camera: {
-    flex: 1,
-    justifyContent: 'space-between',
+
+const options = {
+  title: 'Take Picture',
+  customButtons: [{ name: 'sela', title: 'Choose Photo ' }],
+  storageOptions: {
+    skipBackup: true,
+    path: 'images',
   },
-  bottomBar: {
-    paddingBottom: 5,
-    backgroundColor: 'transparent',
-    alignSelf: 'center',
-    justifyContent: 'center',
-    flex: 0.12,
-    flexDirection: 'row',
-  },
-});
+};
+
+
+// var options = { quality: 0.5 };
+// const options = {
+//   title: 'Upload Avatar',
+//   customButtons: [{ name: 'sela', title: 'Take Photo' }],
+//   storageOptions: {
+//     skipBackup: true,
+//     path: 'images',
+//   },
+// };
+
+
 class AddSite extends Component {
   static navigationOptions = ({ navigation }) => ({
     header: navigation.getParam('header', undefined),
@@ -33,6 +39,7 @@ class AddSite extends Component {
     super(props);
 
     this.state = {
+      appState: AppState.currentState,
       author: JSON.parse(this.props && this.props.name && this.props.name.name).name,
       isConnected: true,
       siteName: '',
@@ -54,28 +61,47 @@ class AddSite extends Component {
 
   async componentWillMount() {
     try {
-      const { status } = await Permissions.askAsync(Permissions.CAMERA);
-      this.setState({ permissionsGranted: status === 'granted' });
-      if (status !== 'granted') {
-        // this.setState({
-        console.log('camera not on')
-        // });
-      }
-      else {
-        console.log('access');
-      }
-    } catch (error) {
-      this.setState({ error: error.message });
+      await this.getLocation();
     }
+    catch (err) {
+      this.setState({ message: err.message });
+    }
+
   }
 
-  componentDidMount() {
+  getLocation = () => {
+    return navigator.geolocation.getCurrentPosition(
+      position => {
+        this.setState({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          error: null,
+        });
+      },
+      error => this.setState({ error: error.message }),
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+    );
+  };
+
+  async componentDidMount() {
     NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
+    AppState.addEventListener('change', this.handleAppStateChange);
   }
 
   componentWillUnmount() {
     NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
   }
+  handleAppStateChange = async nextAppState => {
+    if (
+      this.state.appState.match(/inactive|background/) &&
+      nextAppState === 'active'
+    ) {
+      await this.getLocation();
+      // console.log('App has come to the foreground!');
+    }
+    this.setState({ appState: nextAppState });
+  };
+
 
   handleConnectivityChange = isConnected => {
     if (isConnected) {
@@ -85,61 +111,28 @@ class AddSite extends Component {
     }
   };
 
-  getLocationAsync = async () => {
-    try {
-      const locationStatus = await Location.getProviderStatusAsync();
-      const { gpsAvailable, locationServicesEnabled } = locationStatus;
-      if ((gpsAvailable === false) || (locationServicesEnabled === false)) {
-        if (isAndroid) {
-          await IntentLauncherAndroid.startActivityAsync(
-            IntentLauncherAndroid.ACTION_LOCATION_SOURCE_SETTINGS
-          );
-          return await this.locationPermission();
-        }
-      }
-      return await this.locationPermission();
-    }
-    catch (err) {
-      return false;
-    }
-  };
+  openSettings = () => {
+    if (isAndroid) {
 
-  locationPermission = async () => {
-    const { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status === 'granted') {
-      // https://github.com/expo/expo/issues/946
-      return Location.getCurrentPositionAsync({
-        enableHighAccuracy: true,
-        timeout: 20000, // , maximumAge: 10000,
-      })
-        .then(res => res)
-        .catch(err => false);
     }
-    return false;
-  };
+    else {
+      Linking.openURL('app-settings:');
+    }
+  }
 
   save = async () => {
     this.setState({ buttonLoading: true });
-    const { newBox, siteName, isConnected, author } = this.state;
+    const { newBox, siteName, isConnected, author, longitude, latitude } = this.state;
     const allImage = this.props && this.props.images && this.props.images.images;
     const allImages = allImage === null ? [] : allImage;
     const credentials = this.props && this.props.credentials && this.props.credentials.credentials;
-
     if (siteName === '') {
       this.setState({ buttonLoading: false });
       return alert('Enter site name.');
     }
 
     try {
-      const status = await this.getLocationAsync();
-      if (status === false) {
-        this.setState({ buttonLoading: false });
-        return alert('location access denied,Please switch on your Location.');
-      }
-
-      const { longitude, latitude } = status.coords;
       const data = newBox.filter(v => v.uri !== '');
-
       data.map(d => {
         const imageName = d.uri.split('/');
         d.author = author;
@@ -152,66 +145,64 @@ class AddSite extends Component {
 
       if (isConnected === false) {
         this.failedToUpload(allImages, data);
-      } else {
-        if (data.length > 1) {
-          const imagesArray = data.map(async c => {
-            c.type = 'image/png';
-            const resp = await uploadToAWS(c, null, credentials);
-            if (resp === false) {
-              await this.failedToUpload(allImages, [c]);
-              return false;
-            }
-            return resp;
-          });
+      } else if (data.length > 1) {
+        const imagesArray = data.map(async c => {
+          c.type = 'image/png';
+          console.log('val of c', c);
+          const resp = await uploadToAWS(c, null, credentials);
+          if (resp === false) {
+            await this.failedToUpload(allImages, [c]);
+            return false;
+          }
+          return resp;
+        });
 
-          let images = await Promise.all(imagesArray);
-          images = images.filter(c => c !== false).map(c => c.postResponse.location);
-          if (images.length === 0) {
-            this.setState({ buttonLoading: false });
-            return this.props.navigation.navigate('Sites');
-          }
-          else {
-            data[0].images = images;
-            this.props
-              .uploadSingleImage(data[0], allImages, credentials)
-              .then(async resp => {
-                if (resp.message === 'Saved Successfully.') {
-                  alert('saved');
-                  this.setState({ buttonLoading: false });
-                  this.props.navigation.navigate('Sites');
-                } else {
-                  await this.failedToUpload(allImages, data);
-                }
-              })
-              .catch(async err => {
-                await this.failedToUpload(allImages, data);
-              });
-          }
+        let images = await Promise.all(imagesArray);
+        images = images.filter(c => c !== false).map(c => c.postResponse.location);
+        if (images.length === 0) {
+          this.setState({ buttonLoading: false });
+          return this.props.navigation.navigate('Sites');
         }
-        else {
-          this.props
-            .uploadSingleImage(data[0], allImages, credentials)
-            .then(async resp => {
-              if (resp.message === 'Saved Successfully.') {
-                alert('saved');
-                this.setState({ buttonLoading: false });
-                this.props.navigation.navigate('Sites');
-              } else {
-                await this.failedToUpload(allImages, data);
-              }
-            })
-            .catch(async err => {
+
+        data[0].images = images;
+        this.props
+          .uploadSingleImage(data[0], allImages, credentials)
+          .then(async resp => {
+            if (resp.message === 'Saved Successfully.') {
+              alert('saved');
+              this.setState({ buttonLoading: false });
+              this.props.navigation.navigate('Sites');
+            } else {
               await this.failedToUpload(allImages, data);
-            });
-        }
+            }
+          })
+          .catch(async err => {
+            await this.failedToUpload(allImages, data);
+          });
+      }
+      else {
+        this.props
+          .uploadSingleImage(data[0], allImages, credentials)
+          .then(async resp => {
+            if (resp.message === 'Saved Successfully.') {
+              alert('saved');
+              this.setState({ buttonLoading: false });
+              this.props.navigation.navigate('Sites');
+            } else {
+              await this.failedToUpload(allImages, data);
+            }
+          })
+          .catch(async err => {
+            await this.failedToUpload(allImages, data);
+          });
       }
     } catch (err) {
       this.setState({ buttonLoading: false, error: err.message });
     }
   };
 
-  upload = async (data, allImage, credentials) => {
-    return this.props
+  upload = async (data, allImage, credentials) =>
+    this.props
       .uploadSingleImage(data[0], allImages, credentials)
       .then(async resp => {
         if (resp.message === 'Saved Successfully.') {
@@ -225,7 +216,6 @@ class AddSite extends Component {
       .catch(async err => {
         await this.failedToUpload(allImages, data);
       });
-  };
 
   failedToUpload = async (images, data) => {
     if (images === null) {
@@ -236,39 +226,22 @@ class AddSite extends Component {
     return this.props.navigation.navigate('Sites');
   };
 
-  openCamera = () => {
-    this.setState({ openCamera: true, fullScreen: false });
-    this.props.navigation.setParams({ header: null });
-  };
-
   takePicture = async () => {
     let { step } = this.state;
     step += 1;
-
-    if (this.camera) {
-      try {
-        const photo = await this.camera.takePictureAsync({
-          skipProcessing: true,
-        });
-
-        this.setState(prevState => ({
-          step,
-          fullScreen: true,
-          openCamera: false,
-          showImage: false,
-          newBox: prevState.newBox.concat({
-            uri: photo.uri,
-          }),
-        }));
-        this.props.navigation.setParams({ header: undefined });
-      } catch (error) {
-        this.setState({ error: error.message });
-      }
-    } else {
-      this.setState({
-        error: 'Request failed',
-      });
-    }
+    // Launch Camera:
+    ImagePicker.launchCamera(options, response => {
+      this.setState(prevState => ({
+        step,
+        // fullScreen: true,
+        // openCamera: false,
+        showImage: false,
+        newBox: prevState.newBox.concat({
+          uri: response.uri,
+        }),
+      }));
+      this.props.navigation.setParams({ header: undefined });
+    });
   };
 
   toggleSingleImage = () => {
@@ -306,40 +279,15 @@ class AddSite extends Component {
     );
   };
 
-  renderTopBar = () => <View style={styles.topBar} />;
-
-  renderBottomBar = () => {
-    const { openCamera } = this.state;
-    return (
-      <View style={styles.bottomBar}>
-        <View style={{ flex: 0.4 }}>
-          <TouchableOpacity onPress={() => this.takePicture()} style={{ alignSelf: 'center' }}>
-            <Fragment>
-              <Ionicons
-                name="ios-radio-button-on"
-                size={70}
-                color={!openCamera ? 'white' : 'red'}
-              />
-            </Fragment>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
-
   render() {
     const {
       buttonLoading,
       siteName,
       openCamera,
-      type,
-      flash,
-      autoFocus,
       newBox,
       fullScreen,
       showImage,
       singleImageUri,
-      cameraRef,
     } = this.state;
     return (
       <ScrollView
@@ -361,32 +309,18 @@ class AddSite extends Component {
               filterFn={() => this.deleteImage(singleImageUri)}
               imageSource={{ uri: singleImageUri }}
             />
-          ) : openCamera ? (
-            <Fragment>
-              <Camera
-                ref={ref => {
-                  this.camera = ref;
-                }}
-                type={type}
-                flashMode={flash}
-                autoFocus={autoFocus}
-                style={styles.camera}
-              >
-                {this.renderTopBar()}
-                {this.renderBottomBar()}
-              </Camera>
-            </Fragment>
-          ) : (
-                <MainContent
-                  siteName={siteName}
-                  newBox={newBox}
-                  updateText={siteName => this.setState({ siteName })}
-                  buttonLoading={buttonLoading}
-                  fn={() => this.save()}
-                  openCamera={() => this.openCamera()}
-                  showImage={this.showImage}
-                />
-              )}
+          ) :
+            (
+              <MainContent
+                siteName={siteName}
+                newBox={newBox}
+                updateText={siteName => this.setState({ siteName })}
+                buttonLoading={buttonLoading}
+                fn={() => this.save()}
+                openCamera={() => this.takePicture()}
+                showImage={this.showImage}
+              />
+            )}
         </Fragment>
       </ScrollView>
     );

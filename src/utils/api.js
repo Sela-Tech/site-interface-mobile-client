@@ -1,4 +1,4 @@
-/*eslint no-console: ["error", { allow: ["log"] }] */
+/* eslint no-console: ["error", { allow: ["log"] }] */
 
 import Axios from 'axios';
 import { RNS3 } from 'react-native-aws3';
@@ -52,7 +52,7 @@ export const uploadToAWS = (file, data, cred) => {
       }
       return response.body;
     })
-    .catch(err => console.log('..', err))
+    .catch(err => console.log('..', err));
   // .catch(err => false);
 };
 
@@ -63,11 +63,12 @@ export const upload = async (data, cred) => {
     type: 'image/png',
   };
 
-
   this.postData = data;
   if (data.images) {
+    console.log('the data =fjf', data);
     try {
       const resp = await axios.post('/', data);
+
       return resp;
     } catch (err) {
       return false;
@@ -80,7 +81,6 @@ export const upload = async (data, cred) => {
       }
       data = this.postData;
       data.evidence_name = awsReply.postResponse.location;
-
       return axios
         .post('/', data)
         .then(resp => resp)
