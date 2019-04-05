@@ -15,6 +15,12 @@ const styles = StyleSheet.create({
     height: height / 14,
     width: width / 1.12,
   },
+  inputStyle2: {
+    borderColor: '#696f74',
+    height: height / 14,
+    width: width / 4
+    // width: width / 1.12,
+  },
   button: {
     width: width / 1.1,
   },
@@ -40,57 +46,101 @@ const MainContent = ({
   openCamera,
   showImage,
   updateText,
+  updateDepth,
+  updateLength,
+  updateWidth,
+  length,
+  width,
+  depth,
 }) => (
-  <Fragment>
-    <View style={{ paddingTop: '5%', flex: 1 }}>
-      <View>
-        <Text style={{ fontSize: 20 }}>Site Name</Text>
-      </View>
-      <View style={{ marginTop: 10 }}>
-        <Input
-          value={siteName}
-          text="What is the name of the site"
-          placeHolderColor="#696F74"
-          style={styles.inputStyle}
-          onChangeTheText={updateText}
-        />
-      </View>
-      <View style={styles.image}>
-        {newBox.map((v, index) => (
-          <Box
-            fn={(v && v.uri) === '' ? openCamera : () => showImage(v.uri)}
-            key={index}
-            text="Add new picture"
-            empty={(v && v.uri) !== ''}
-            imageSource={{ uri: v.uri }}
-          />
-        ))}
-      </View>
-
-      <View>
-        <View style={styles.bottom}>
+    <Fragment>
+      <View style={{ paddingTop: '5%', flex: 1 }}>
+        <View>
           <View>
-            <Button
-              text="SAVE"
-              color={YELLOW}
-              style={styles.button}
-              fn={fn}
-              loading={buttonLoading}
+            <Text style={{ fontSize: 20 }}>Site Name</Text>
+          </View>
+          <View style={{ marginTop: 10 }}>
+            <Input
+              value={siteName}
+              text="What is the name of the site"
+              placeHolderColor="#696F74"
+              style={styles.inputStyle}
+              onChangeTheText={updateText}
             />
           </View>
         </View>
+
+
+        <View style={{ justifyContent: 'space-between', width: '100%', flexDirection: 'row' }}>
+          <View style={{ marginTop: 10 }}>
+            <Input
+              value={length}
+              text="Length"
+              placeHolderColor="#696F74"
+              style={styles.inputStyle2}
+              onChangeTheText={updateLength}
+            />
+          </View>
+
+          <View style={{ marginTop: 10 }}>
+            <Input
+              value={width}
+              text="Width"
+              placeHolderColor="#696F74"
+              style={styles.inputStyle2}
+              onChangeTheText={updateWidth}
+            />
+          </View>
+
+          <View style={{ marginTop: 10 }}>
+            <Input
+              value={depth}
+              text="Depth"
+              placeHolderColor="#696F74"
+              style={styles.inputStyle2}
+              onChangeTheText={updateDepth}
+            />
+          </View>
+        </View>
+        {/* </View> */}
+
+
+        <View style={styles.image}>
+          {newBox.map((v, index) => (
+            <Box
+              fn={(v && v.uri) === '' ? openCamera : () => showImage(v.uri)}
+              key={index}
+              text="Add new picture"
+              empty={(v && v.uri) !== ''}
+              imageSource={{ uri: v.uri }}
+            />
+          ))}
+        </View>
+
+        <View>
+          <View style={styles.bottom}>
+            <View>
+              <Button
+                text="SAVE"
+                color={YELLOW}
+                style={styles.button}
+                fn={fn}
+                loading={buttonLoading}
+              />
+            </View>
+          </View>
+        </View>
       </View>
-    </View>
-  </Fragment>
-);
+    </Fragment>
+  );
 
 MainContent.defaultProps = {
   fn: null,
   siteName: '',
   newBox: [],
   buttonLoading: false,
-  openCamera: () => {},
-  showImage: () => {},
+  openCamera: () => { },
+  showImage: () => { },
 };
 MainContent.propTypes = {
   fn: PropTypes.func,

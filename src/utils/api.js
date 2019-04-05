@@ -65,10 +65,9 @@ export const upload = async (data, cred) => {
 
   this.postData = data;
   if (data.images) {
-    console.log('the data =fjf', data);
+
     try {
       const resp = await axios.post('/', data);
-
       return resp;
     } catch (err) {
       return false;
@@ -87,7 +86,6 @@ export const upload = async (data, cred) => {
         .catch(err => false);
     })
     .catch(err => false);
-  // .catch(err => console.log('..', err))
 };
 
 export const getPassCredentials = async () => {

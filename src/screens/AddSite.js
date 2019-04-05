@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, NetInfo, AppState, Linking } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
+import AndroidOpenSettings from 'react-native-android-open-settings';
 import { connect } from 'react-redux';
 import { uploadSingleImage, addNewImage } from '../../actions/images';
 import { uploadToAWS } from '../utils/api';
 import { isAndroid } from '../utils/helpers';
 import Image from '../components/AddSite/Image';
 import MainContent from '../components/AddSite/MainContent';
-
 
 const options = {
   title: 'Take Picture',
@@ -18,7 +18,6 @@ const options = {
   },
 };
 
-
 // var options = { quality: 0.5 };
 // const options = {
 //   title: 'Upload Avatar',
@@ -28,7 +27,6 @@ const options = {
 //     path: 'images',
 //   },
 // };
-
 
 class AddSite extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -43,6 +41,9 @@ class AddSite extends Component {
       author: JSON.parse(this.props && this.props.name && this.props.name.name).name,
       isConnected: true,
       siteName: '',
+      width: '',
+      depth: '',
+      length: '',
       buttonLoading: false,
       step: 0,
       flash: 'off',
@@ -60,17 +61,16 @@ class AddSite extends Component {
   }
 
   async componentWillMount() {
+    AppState.addEventListener('change', this.handleAppStateChange);
     try {
       await this.getLocation();
-    }
-    catch (err) {
+    } catch (err) {
       this.setState({ message: err.message });
     }
-
   }
 
-  getLocation = () => {
-    return navigator.geolocation.getCurrentPosition(
+  getLocation = () =>
+    navigator.geolocation.getCurrentPosition(
       position => {
         this.setState({
           latitude: position.coords.latitude,
@@ -78,10 +78,13 @@ class AddSite extends Component {
           error: null,
         });
       },
-      error => this.setState({ error: error.message }),
+      error => {
+        // Open location source settings menu
+        AndroidOpenSettings.locationSourceSettings();
+        this.setState({ error: error.message })
+      },
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
-  };
 
   async componentDidMount() {
     NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
@@ -90,18 +93,16 @@ class AddSite extends Component {
 
   componentWillUnmount() {
     NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+    AppState.removeEventListener('change', this.handleAppStateChange);
   }
+
   handleAppStateChange = async nextAppState => {
-    if (
-      this.state.appState.match(/inactive|background/) &&
-      nextAppState === 'active'
-    ) {
+    if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
       await this.getLocation();
       // console.log('App has come to the foreground!');
     }
     this.setState({ appState: nextAppState });
   };
-
 
   handleConnectivityChange = isConnected => {
     if (isConnected) {
@@ -113,26 +114,35 @@ class AddSite extends Component {
 
   openSettings = () => {
     if (isAndroid) {
-
-    }
-    else {
+    } else {
       Linking.openURL('app-settings:');
     }
-  }
+  };
 
   save = async () => {
-    this.setState({ buttonLoading: true });
-    const { newBox, siteName, isConnected, author, longitude, latitude } = this.state;
+
+    const { newBox, siteName, length, width, depth, isConnected, author, longitude, latitude } = this.state;
     const allImage = this.props && this.props.images && this.props.images.images;
     const allImages = allImage === null ? [] : allImage;
     const credentials = this.props && this.props.credentials && this.props.credentials.credentials;
+
+    const checkIfImageIsEmpty = newBox.filter(v => v.uri !== '');
+
+
     if (siteName === '') {
       this.setState({ buttonLoading: false });
       return alert('Enter site name.');
     }
 
+    if (checkIfImageIsEmpty.length === 0) {
+      return alert('Upload Image');
+    }
+
+    this.setState({ buttonLoading: true });
+
     try {
       const data = newBox.filter(v => v.uri !== '');
+
       data.map(d => {
         const imageName = d.uri.split('/');
         d.author = author;
@@ -140,15 +150,19 @@ class AddSite extends Component {
         d.evidence_name = imageName[imageName.length - 1];
         d.longitude = longitude;
         d.latitude = latitude;
+        d.length = length;
+        d.depth = depth;
+        d.width = width;
         return d;
       });
+
+
 
       if (isConnected === false) {
         this.failedToUpload(allImages, data);
       } else if (data.length > 1) {
         const imagesArray = data.map(async c => {
           c.type = 'image/png';
-          console.log('val of c', c);
           const resp = await uploadToAWS(c, null, credentials);
           if (resp === false) {
             await this.failedToUpload(allImages, [c]);
@@ -180,6 +194,7 @@ class AddSite extends Component {
             await this.failedToUpload(allImages, data);
           });
       }
+      // Upload single Image
       else {
         this.props
           .uploadSingleImage(data[0], allImages, credentials)
@@ -283,6 +298,9 @@ class AddSite extends Component {
     const {
       buttonLoading,
       siteName,
+      width,
+      length,
+      depth,
       openCamera,
       newBox,
       fullScreen,
@@ -309,11 +327,18 @@ class AddSite extends Component {
               filterFn={() => this.deleteImage(singleImageUri)}
               imageSource={{ uri: singleImageUri }}
             />
-          ) :
-            (
+          ) : (
               <MainContent
                 siteName={siteName}
+                width={width}
+                depth={depth}
+                length={length}
                 newBox={newBox}
+                updateLength={length => this.setState({ length })}
+                updateDepth={depth => this.setState({ depth })}
+                updateWidth={width => this.setState({ width })}
+
+
                 updateText={siteName => this.setState({ siteName })}
                 buttonLoading={buttonLoading}
                 fn={() => this.save()}
