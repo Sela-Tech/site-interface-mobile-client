@@ -4,6 +4,7 @@ ADDED from /Users/david/Desktop/projects/sela/Sela/android/app/src/main/AndroidM
 INJECTED from /Users/david/Desktop/projects/sela/Sela/android/app/src/main/AndroidManifest.xml:1:1-20:12
 INJECTED from /Users/david/Desktop/projects/sela/Sela/android/app/src/main/AndroidManifest.xml:1:1-20:12
 INJECTED from /Users/david/Desktop/projects/sela/Sela/android/app/src/main/AndroidManifest.xml:1:1-20:12
+MERGED from [:react-native-android-open-settings] /Users/david/Desktop/projects/sela/Sela/node_modules/react-native-android-open-settings/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-11:12
 MERGED from [:react-native-vector-icons] /Users/david/Desktop/projects/sela/Sela/node_modules/react-native-vector-icons/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-11:12
 MERGED from [:react-native-image-picker] /Users/david/Desktop/projects/sela/Sela/node_modules/react-native-image-picker/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-23:12
 MERGED from [:react-native-gesture-handler] /Users/david/Desktop/projects/sela/Sela/node_modules/react-native-gesture-handler/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-11:12
@@ -126,6 +127,8 @@ uses-sdk
 INJECTED from /Users/david/Desktop/projects/sela/Sela/android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/david/Desktop/projects/sela/Sela/android/app/src/main/AndroidManifest.xml
 INJECTED from /Users/david/Desktop/projects/sela/Sela/android/app/src/main/AndroidManifest.xml
+MERGED from [:react-native-android-open-settings] /Users/david/Desktop/projects/sela/Sela/node_modules/react-native-android-open-settings/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-android-open-settings] /Users/david/Desktop/projects/sela/Sela/node_modules/react-native-android-open-settings/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
 MERGED from [:react-native-vector-icons] /Users/david/Desktop/projects/sela/Sela/node_modules/react-native-vector-icons/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
 MERGED from [:react-native-vector-icons] /Users/david/Desktop/projects/sela/Sela/node_modules/react-native-vector-icons/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
 MERGED from [:react-native-image-picker] /Users/david/Desktop/projects/sela/Sela/node_modules/react-native-image-picker/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41

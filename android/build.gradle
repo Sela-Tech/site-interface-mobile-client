@@ -32,6 +32,17 @@ allprojects {
     }
 }
 
+subprojects {
+    afterEvaluate {project ->
+        if (project.hasProperty("android")) {
+            android {
+                compileSdkVersion 26 // <-- match this to your project's compileSdkVersion
+                buildToolsVersion '26.0.3' // <-- match this to your project's buildToolsVersion
+            }
+        }
+    }
+}
+
 
 task wrapper(type: Wrapper) {
     gradleVersion = '4.4'
