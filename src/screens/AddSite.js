@@ -159,7 +159,8 @@ class AddSite extends Component {
         const imageName = d.uri.split('/');
         d.author = author;
         d.site_name = siteName;
-        d.evidence_name = imageName[imageName.length - 1];
+        d.evidence_name =
+          Math.floor(Math.random() * Math.floor(1000)) + imageName[imageName.length - 1];
         d.longitude = longitude;
         d.latitude = latitude;
         d.length = length;
@@ -178,6 +179,7 @@ class AddSite extends Component {
       } else if (data.length > 1) {
         const imagesArray = data.map(async c => {
           c.type = 'image/png';
+          c.name = c.evidence_name;
           const resp = await uploadToAWS(c, null, credentials);
           if (resp === false) {
             await this.failedToUpload(allImages, [c]);
@@ -329,10 +331,10 @@ class AddSite extends Component {
         contentContainerStyle={
           fullScreen
             ? {
-                flexGrow: 1,
-                marginHorizontal: '5%',
-                justifyContent: 'space-around',
-              }
+              flexGrow: 1,
+              marginHorizontal: '5%',
+              justifyContent: 'space-around',
+            }
             : { flexGrow: 1 }
         }
       >
@@ -344,25 +346,25 @@ class AddSite extends Component {
               imageSource={{ uri: singleImageUri }}
             />
           ) : (
-            <MainContent
-              siteName={siteName}
-              width={width}
-              depth={depth}
-              length={length}
-              unit={unit}
-              newBox={newBox}
-              updateUnit={unit => this.setState({ unit })}
-              updateLength={length => this.setState({ length })}
-              updateDepth={depth => this.setState({ depth })}
-              updateWidth={width => this.setState({ width })}
-              updateText={siteName => this.setState({ siteName })}
-              buttonLoading={buttonLoading}
-              fn={() => this.save()}
-              offline={() => this.save('val')}
-              openCamera={() => this.takePicture()}
-              showImage={this.showImage}
-            />
-          )}
+              <MainContent
+                siteName={siteName}
+                width={width}
+                depth={depth}
+                length={length}
+                unit={unit}
+                newBox={newBox}
+                updateUnit={unit => this.setState({ unit })}
+                updateLength={length => this.setState({ length })}
+                updateDepth={depth => this.setState({ depth })}
+                updateWidth={width => this.setState({ width })}
+                updateText={siteName => this.setState({ siteName })}
+                buttonLoading={buttonLoading}
+                fn={() => this.save()}
+                offline={() => this.save('val')}
+                openCamera={() => this.takePicture()}
+                showImage={this.showImage}
+              />
+            )}
         </Fragment>
       </ScrollView>
     );

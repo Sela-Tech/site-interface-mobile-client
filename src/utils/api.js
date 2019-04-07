@@ -65,7 +65,6 @@ export const upload = async (data, cred) => {
 
   this.postData = data;
   if (data.images) {
-
     try {
       const resp = await axios.post('/', data);
       return resp;
