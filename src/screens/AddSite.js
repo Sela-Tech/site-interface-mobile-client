@@ -84,9 +84,11 @@ class AddSite extends Component {
       },
       error => {
         console.log('fkkd', error.message);
-        // Open location source settings menu
-        AndroidOpenSettings.locationSourceSettings();
-        this.setState({ error: error.message });
+        if (error.message !== 'Location request timed out') {
+          // Open location source settings menu
+          AndroidOpenSettings.locationSourceSettings();
+          this.setState({ error: error.message });
+        }
       },
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
@@ -169,6 +171,7 @@ class AddSite extends Component {
         d.unit = unit;
         return d;
       });
+
       if (val) {
         return this.failedToUpload(allImages, data);
       }
@@ -331,10 +334,10 @@ class AddSite extends Component {
         contentContainerStyle={
           fullScreen
             ? {
-              flexGrow: 1,
-              marginHorizontal: '5%',
-              justifyContent: 'space-around',
-            }
+                flexGrow: 1,
+                marginHorizontal: '5%',
+                justifyContent: 'space-around',
+              }
             : { flexGrow: 1 }
         }
       >
@@ -346,25 +349,25 @@ class AddSite extends Component {
               imageSource={{ uri: singleImageUri }}
             />
           ) : (
-              <MainContent
-                siteName={siteName}
-                width={width}
-                depth={depth}
-                length={length}
-                unit={unit}
-                newBox={newBox}
-                updateUnit={unit => this.setState({ unit })}
-                updateLength={length => this.setState({ length })}
-                updateDepth={depth => this.setState({ depth })}
-                updateWidth={width => this.setState({ width })}
-                updateText={siteName => this.setState({ siteName })}
-                buttonLoading={buttonLoading}
-                fn={() => this.save()}
-                offline={() => this.save('val')}
-                openCamera={() => this.takePicture()}
-                showImage={this.showImage}
-              />
-            )}
+            <MainContent
+              siteName={siteName}
+              width={width}
+              depth={depth}
+              length={length}
+              unit={unit}
+              newBox={newBox}
+              updateUnit={unit => this.setState({ unit })}
+              updateLength={length => this.setState({ length })}
+              updateDepth={depth => this.setState({ depth })}
+              updateWidth={width => this.setState({ width })}
+              updateText={siteName => this.setState({ siteName })}
+              buttonLoading={buttonLoading}
+              fn={() => this.save()}
+              offline={() => this.save('val')}
+              openCamera={() => this.takePicture()}
+              showImage={this.showImage}
+            />
+          )}
         </Fragment>
       </ScrollView>
     );
