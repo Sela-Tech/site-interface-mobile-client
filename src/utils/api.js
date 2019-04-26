@@ -52,7 +52,8 @@ export const uploadToAWS = (file, data, cred) => {
       }
       return response.body;
     })
-    .catch(err => console.log('..', err));
+    .catch(err => console.log('..', err))
+    .progress((e) => console.log('dd',e.loaded / e.total));
   // .catch(err => false);
 };
 
